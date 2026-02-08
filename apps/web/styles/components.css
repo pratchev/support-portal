@@ -162,6 +162,51 @@
 }
 
 /* Code Block - Light Theme */
+.code-block-wrapper {
+  margin: 16px 0;
+}
+
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #e2e8f0;
+  border: 1px solid #cbd5e0;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+.code-language-select {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.copy-code-button {
+  padding: 4px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-code-button:hover {
+  background: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+.code-block-content {
+  margin: 0;
+  border-radius: 0 0 8px 8px;
+}
+
 .editor-content .ProseMirror pre {
   background-color: #f7fafc;
   border: 1px solid #e2e8f0;
@@ -250,6 +295,56 @@
   opacity: 0.9;
 }
 
+/* Image Lightbox */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: pointer;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: default;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 32px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* Links */
 .editor-content .ProseMirror a {
   color: #3182ce;
@@ -315,6 +410,29 @@
   }
 
   /* Code Block - Dark Theme */
+  .code-block-header {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .code-language-select {
+    background: #1a202c;
+    color: #e2e8f0;
+    border-color: #4a5568;
+  }
+
+  .copy-code-button {
+    background: #1a202c;
+    color: #e2e8f0;
+    border-color: #4a5568;
+  }
+
+  .copy-code-button:hover {
+    background: #3182ce;
+    color: white;
+    border-color: #3182ce;
+  }
+
   .editor-content .ProseMirror pre {
     background-color: #1a202c;
     border-color: #4a5568;
@@ -538,3 +656,75 @@
     background: #4a5568;
   }
 }
+
+/* Content Renderer Styles */
+.content-renderer {
+  line-height: 1.6;
+  color: inherit;
+}
+
+.content-renderer img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.content-renderer img:hover {
+  opacity: 0.9;
+}
+
+.content-renderer pre {
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.content-renderer code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.content-renderer pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.content-renderer table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+}
+
+.content-renderer table td,
+.content-renderer table th {
+  border: 1px solid #e2e8f0;
+  padding: 8px 12px;
+}
+
+.content-renderer table th {
+  background-color: #f7fafc;
+  font-weight: bold;
+}
+
+@media (prefers-color-scheme: dark) {
+  .content-renderer pre {
+    background-color: #1a202c;
+    border-color: #4a5568;
+  }
+
+  .content-renderer table td,
+  .content-renderer table th {
+    border-color: #4a5568;
+  }
+
+  .content-renderer table th {
+    background-color: #1a202c;
+  }
+}
+

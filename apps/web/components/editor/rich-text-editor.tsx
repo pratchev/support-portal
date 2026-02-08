@@ -2,7 +2,6 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Table from '@tiptap/extension-table';
@@ -37,6 +36,7 @@ import bash from 'highlight.js/lib/languages/bash';
 import powershell from 'highlight.js/lib/languages/powershell';
 import markdown from 'highlight.js/lib/languages/markdown';
 import { useCallback } from 'react';
+import { CodeBlockWithCopy } from './extensions/code-block-with-copy';
 
 // Register languages for syntax highlighting
 lowlight.register('javascript', javascript);
@@ -75,7 +75,7 @@ export default function RichTextEditor({
       StarterKit.configure({
         codeBlock: false, // Disable default code block to use our custom one
       }),
-      CodeBlockLowlight.configure({
+      CodeBlockWithCopy.configure({
         lowlight,
         defaultLanguage: 'plaintext',
       }),

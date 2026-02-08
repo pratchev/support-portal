@@ -4,6 +4,21 @@ This document provides a comprehensive security overview of the Rich Content Sup
 
 ## ✅ Security Measures Implemented
 
+### 0. Dependency Vulnerabilities Fixed
+
+#### Updated Vulnerable Packages
+- **multer** updated from 1.4.5-lts.1 to 2.0.2
+  - Fixes: DoS via unhandled exceptions
+  - Fixes: DoS from malformed requests
+  - Fixes: Memory leaks from unclosed streams
+  - **Impact:** CRITICAL - Prevents denial of service attacks
+
+- **next** updated from 14.0.0 to 15.0.8
+  - Fixes: HTTP request deserialization DoS with React Server Components
+  - **Impact:** HIGH - Prevents DoS attacks in server components
+
+**Resolution Date:** 2026-02-08
+
 ### 1. Input Validation & Sanitization
 
 #### HTML Content Sanitization

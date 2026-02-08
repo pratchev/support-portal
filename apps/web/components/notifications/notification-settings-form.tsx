@@ -280,8 +280,11 @@ export function NotificationSettingsForm({
                           id="smtpPort"
                           type="number"
                           placeholder="587"
-                          value={formData.smtpPort}
-                          onChange={(e) => updateField('smtpPort', parseInt(e.target.value))}
+                          value={formData.smtpPort || ''}
+                          onChange={(e) => {
+                            const port = parseInt(e.target.value, 10);
+                            updateField('smtpPort', isNaN(port) ? 587 : port);
+                          }}
                         />
                       </div>
                     </div>

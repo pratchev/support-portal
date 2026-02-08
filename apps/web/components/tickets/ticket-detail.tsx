@@ -72,10 +72,10 @@ export function TicketDetail({ ticket }: TicketDetailProps) {
                 <div className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={ticket.user.image} />
-                    <AvatarFallback>{ticket.user.name[0]}</AvatarFallback>
+                    <AvatarFallback>{ticket.user.name?.[0] || 'U'}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{ticket.user.name}</p>
+                    <p className="font-medium">{ticket.user.name || 'Unknown User'}</p>
                     <p className="text-xs text-muted-foreground">{ticket.user.email}</p>
                   </div>
                 </div>

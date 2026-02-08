@@ -1,4 +1,5 @@
 import multer from 'multer';
+import { Request } from 'express';
 import { env } from '@/config/env';
 import { sanitizeFilename } from '@/utils/helpers';
 
@@ -13,7 +14,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Allow common file types
   const allowedMimeTypes = [
     'image/jpeg',

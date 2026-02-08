@@ -29,7 +29,7 @@ export interface NotificationEvent {
   subject: string;
   recipientEmail: string;
   recipientName?: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }
 
 export enum NotificationType {

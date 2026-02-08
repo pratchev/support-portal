@@ -27,7 +27,8 @@ export const startNotificationWorker = () => {
       try {
         // The actual sending is handled through the service
         // This worker just processes the queue
-        await (notificationService as any).sendEmail(emailData);
+        // Note: sendEmail is a private method, accessed through type assertion
+        await (notificationService as unknown as { sendEmail: (data: EmailJobData['emailData']) => Promise<void> }).sendEmail(emailData);
         logger.info(`Email notification sent to ${emailData.to}`);
       } catch (error) {
         logger.error(`Failed to send email to ${emailData.to}:`, error);

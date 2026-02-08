@@ -1,4 +1,5 @@
 import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import app from './app';
 import { env } from './config/env';
 import { prisma } from './config/database';
@@ -10,6 +11,12 @@ import { startAIAnalysisWorker } from './jobs/aiAnalysis';
 import { startEmailIngestionWorker, scheduleEmailIngestion } from './jobs/emailIngestion';
 import { ensureDirectory } from './utils/helpers';
 
+// Augment global namespace with io instance
+declare global {
+  // eslint-disable-next-line no-var
+  var io: SocketIOServer | undefined;
+}
+
 const PORT = parseInt(env.PORT);
 const server = http.createServer(app);
 
@@ -17,7 +24,7 @@ const server = http.createServer(app);
 const io = initializeWebSocket(server);
 
 // Store io instance globally for use in other modules
-(global as any).io = io;
+global.io = io;
 
 const startServer = async () => {
   try {

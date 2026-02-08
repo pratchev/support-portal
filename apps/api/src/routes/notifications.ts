@@ -53,7 +53,8 @@ router.get('/settings', authenticate, requireRole('ADMIN'), async (_req: AuthReq
       });
     }
     
-    // Don't expose sensitive data
+    // Don't expose sensitive data (destructure but don't use the values)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { smtpPassword, graphClientSecret, ...safeSettings } = settings;
     
     res.json(safeSettings);
@@ -90,7 +91,8 @@ router.put(
         });
       }
       
-      // Don't expose sensitive data
+      // Don't expose sensitive data (destructure but don't use the values)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { smtpPassword, graphClientSecret, ...safeSettings } = settings;
       
       logger.info('Notification settings updated by admin');

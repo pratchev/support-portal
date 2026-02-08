@@ -192,6 +192,7 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
 });
 
 // GET /api/attachments/:id/download - Download an attachment
+// TODO: Add rate limiting to prevent abuse
 router.get('/:id/download', async (req, res) => {
   try {
     const { id } = req.params;
@@ -217,6 +218,7 @@ router.get('/:id/download', async (req, res) => {
 });
 
 // GET /api/attachments/:id/thumbnail - Get image thumbnail
+// TODO: Add rate limiting to prevent abuse
 router.get('/:id/thumbnail', async (req, res) => {
   try {
     const { id } = req.params;
@@ -241,6 +243,7 @@ router.get('/:id/thumbnail', async (req, res) => {
 });
 
 // DELETE /api/attachments/:id - Delete an attachment
+// TODO: Add rate limiting and authentication to prevent abuse
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

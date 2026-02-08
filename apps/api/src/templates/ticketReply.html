@@ -1,0 +1,46 @@
+<div style="margin-bottom: 24px;">
+  <h2 style="margin: 0 0 16px; color: #212529; font-size: 22px; font-weight: 600;">New Reply on Your Ticket</h2>
+  <p style="margin: 0; color: #495057; font-size: 16px; line-height: 1.6;">
+    Hello <strong>{{customerName}}</strong>,
+  </p>
+</div>
+
+<div style="background-color: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0 0 8px; color: #6c757d; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+    Ticket #{{ticketNumber}}
+  </p>
+  <p style="margin: 0; color: #212529; font-size: 18px; font-weight: 500;">
+    {{ticketSubject}}
+  </p>
+</div>
+
+<p style="margin: 0 0 24px; color: #495057; font-size: 15px; line-height: 1.6;">
+  {{agentName}} has replied to your support ticket:
+</p>
+
+<div style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 6px; padding: 24px; margin: 24px 0;">
+  <div style="margin-bottom: 12px;">
+    <strong style="color: #212529; font-size: 14px;">{{agentName}}</strong>
+    <span style="color: #adb5bd; font-size: 13px; margin-left: 8px;">{{replyDate}}</span>
+  </div>
+  <div style="color: #495057; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">{{replyContent}}</div>
+</div>
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin: 32px 0;">
+  <tr>
+    <td style="border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <a href="{{ticketUrl}}" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.3px;">
+        View Ticket & Reply
+      </a>
+    </td>
+  </tr>
+</table>
+
+<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e9ecef;">
+  <p style="margin: 0 0 8px; color: #495057; font-size: 14px; line-height: 1.6;">
+    Need more help? You can reply directly to this ticket or visit our support portal.
+  </p>
+  <p style="margin: 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
+    <strong>Tracking Token:</strong> {{trackingToken}}
+  </p>
+</div>

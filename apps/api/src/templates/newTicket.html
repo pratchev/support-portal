@@ -1,0 +1,74 @@
+<div style="margin-bottom: 24px;">
+  <h2 style="margin: 0 0 16px; color: #212529; font-size: 22px; font-weight: 600;">Your Support Ticket Has Been Created</h2>
+  <p style="margin: 0; color: #495057; font-size: 16px; line-height: 1.6;">
+    Hello <strong>{{customerName}}</strong>,
+  </p>
+</div>
+
+<p style="margin: 0 0 24px; color: #495057; font-size: 15px; line-height: 1.6;">
+  Thank you for contacting us. Your support ticket has been successfully created and our team will review it shortly.
+</p>
+
+<div style="background-color: #e7f5e9; border-left: 4px solid #28a745; padding: 20px; margin: 24px 0; border-radius: 4px;">
+  <p style="margin: 0 0 8px; color: #155724; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">
+    Ticket #{{ticketNumber}}
+  </p>
+  <p style="margin: 0; color: #155724; font-size: 18px; font-weight: 500;">
+    {{ticketSubject}}
+  </p>
+</div>
+
+<div style="background-color: #f8f9fa; border-radius: 6px; padding: 24px; margin: 24px 0;">
+  <h3 style="margin: 0 0 16px; color: #212529; font-size: 16px; font-weight: 600;">Ticket Details</h3>
+  
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size: 14px;">
+    <tr>
+      <td style="padding: 8px 0; color: #6c757d; width: 140px;">Priority:</td>
+      <td style="padding: 8px 0; color: #212529; font-weight: 500;">
+        <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; background-color: {{priorityColor}}; color: #ffffff;">
+          {{priority}}
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; color: #6c757d;">Category:</td>
+      <td style="padding: 8px 0; color: #212529; font-weight: 500;">{{category}}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; color: #6c757d;">Status:</td>
+      <td style="padding: 8px 0; color: #212529; font-weight: 500;">{{status}}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; color: #6c757d;">Created:</td>
+      <td style="padding: 8px 0; color: #212529; font-weight: 500;">{{createdDate}}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 0; color: #6c757d; vertical-align: top;">Tracking Token:</td>
+      <td style="padding: 8px 0; color: #667eea; font-weight: 500; font-family: monospace; font-size: 13px;">{{trackingToken}}</td>
+    </tr>
+  </table>
+</div>
+
+<div style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 6px; padding: 24px; margin: 24px 0;">
+  <h4 style="margin: 0 0 12px; color: #212529; font-size: 14px; font-weight: 600;">Your Message:</h4>
+  <div style="color: #495057; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">{{description}}</div>
+</div>
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin: 32px 0;">
+  <tr>
+    <td style="border-radius: 6px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <a href="{{ticketUrl}}" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600; letter-spacing: 0.3px;">
+        View Ticket Status
+      </a>
+    </td>
+  </tr>
+</table>
+
+<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e9ecef;">
+  <h4 style="margin: 0 0 12px; color: #212529; font-size: 15px; font-weight: 600;">What happens next?</h4>
+  <ul style="margin: 0; padding-left: 20px; color: #495057; font-size: 14px; line-height: 1.8;">
+    <li>Our support team will review your ticket</li>
+    <li>You'll receive updates via email</li>
+    <li>Expected response time: <strong>{{expectedResponseTime}}</strong></li>
+  </ul>
+</div>

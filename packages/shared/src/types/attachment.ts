@@ -62,10 +62,10 @@ export type CodeLanguage = typeof CODE_LANGUAGES[number];
 export function getFileType(extension: string): 'image' | 'document' | 'archive' | 'code' | 'other' {
   const ext = extension.toLowerCase().replace('.', '');
   
-  if (ALLOWED_FILE_TYPES.image.includes(ext as any)) return 'image';
-  if (ALLOWED_FILE_TYPES.document.includes(ext as any)) return 'document';
-  if (ALLOWED_FILE_TYPES.archive.includes(ext as any)) return 'archive';
-  if (ALLOWED_FILE_TYPES.code.includes(ext as any)) return 'code';
+  if ((ALLOWED_FILE_TYPES.image as readonly string[]).includes(ext)) return 'image';
+  if ((ALLOWED_FILE_TYPES.document as readonly string[]).includes(ext)) return 'document';
+  if ((ALLOWED_FILE_TYPES.archive as readonly string[]).includes(ext)) return 'archive';
+  if ((ALLOWED_FILE_TYPES.code as readonly string[]).includes(ext)) return 'code';
   
   return 'other';
 }
@@ -75,6 +75,6 @@ export function isFileTypeAllowed(extension: string): boolean {
   const ext = extension.toLowerCase().replace('.', '');
   
   return Object.values(ALLOWED_FILE_TYPES).some(types => 
-    types.includes(ext as any)
+    (types as readonly string[]).includes(ext)
   );
 }

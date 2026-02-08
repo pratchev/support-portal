@@ -23,7 +23,11 @@ const storage = multer.diskStorage({
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
-    const ticketNumber = req.body.ticketNumber || 'temp';
+    
+    // Sanitize ticket number to prevent path traversal
+    const ticketNumber = (req.body.ticketNumber || 'temp')
+      .replace(/[^a-zA-Z0-9-]/g, '')
+      .substring(0, 50);
     
     const uploadPath = path.join(__dirname, '../../uploads', String(year), month, ticketNumber);
     
@@ -79,7 +83,7 @@ router.post('/upload', upload.array('files', 20), async (req, res) => {
           originalName: file.originalname,
           filePath: file.path,
           fileUrl,
-          fileSize: BigInt(file.size),
+          fileSize: BigInt(Math.min(file.size, Number.MAX_SAFE_INTEGER)),
           mimeType,
           fileType,
           isInline: false,
@@ -156,7 +160,7 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
         fileUrl,
         thumbnailPath,
         thumbnailUrl,
-        fileSize: BigInt(file.size),
+        fileSize: BigInt(Math.min(file.size, Number.MAX_SAFE_INTEGER)),
         mimeType,
         fileType: 'image',
         width,
@@ -249,14 +253,18 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Attachment not found' });
     }
 
-    // Delete files from disk
+    // Delete files from disk asynchronously
+    const deletePromises = [];
+    
     if (fs.existsSync(attachment.filePath)) {
-      fs.unlinkSync(attachment.filePath);
+      deletePromises.push(fs.promises.unlink(attachment.filePath));
     }
 
     if (attachment.thumbnailPath && fs.existsSync(attachment.thumbnailPath)) {
-      fs.unlinkSync(attachment.thumbnailPath);
+      deletePromises.push(fs.promises.unlink(attachment.thumbnailPath));
     }
+
+    await Promise.all(deletePromises);
 
     // Delete from database
     await prisma.attachment.delete({

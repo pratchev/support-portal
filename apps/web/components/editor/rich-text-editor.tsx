@@ -35,7 +35,7 @@ import yaml from 'highlight.js/lib/languages/yaml';
 import bash from 'highlight.js/lib/languages/bash';
 import powershell from 'highlight.js/lib/languages/powershell';
 import markdown from 'highlight.js/lib/languages/markdown';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { CodeBlockWithCopy } from './extensions/code-block-with-copy';
 
 // Register languages for syntax highlighting
@@ -128,11 +128,15 @@ export default function RichTextEditor({
     },
   });
 
-  // Handle image paste from clipboard
-  const handlePaste = useCallback(
-    async (event: ClipboardEvent) => {
+  // Handle image paste from clipboard and drag & drop
+  useEffect(() => {
+    if (!editor || !editable || !onImageUpload) return;
+
+    const editorElement = editor.view.dom;
+
+    const handlePaste = async (event: ClipboardEvent) => {
       const items = event.clipboardData?.items;
-      if (!items || !onImageUpload) return;
+      if (!items) return;
 
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
@@ -141,36 +145,32 @@ export default function RichTextEditor({
           const file = item.getAsFile();
           if (file) {
             const url = await onImageUpload(file);
-            editor?.chain().focus().setImage({ src: url }).run();
+            editor.chain().focus().setImage({ src: url }).run();
           }
         }
       }
-    },
-    [editor, onImageUpload]
-  );
+    };
 
-  // Handle drag and drop
-  const handleDrop = useCallback(
-    async (event: DragEvent) => {
+    const handleDrop = async (event: DragEvent) => {
       const files = event.dataTransfer?.files;
-      if (!files || files.length === 0 || !onImageUpload) return;
+      if (!files || files.length === 0) return;
 
       const file = files[0];
       if (file.type.startsWith('image/')) {
         event.preventDefault();
         const url = await onImageUpload(file);
-        editor?.chain().focus().setImage({ src: url }).run();
+        editor.chain().focus().setImage({ src: url }).run();
       }
-    },
-    [editor, onImageUpload]
-  );
+    };
 
-  // Add event listeners
-  if (editor && editable) {
-    const editorElement = editor.view.dom;
     editorElement.addEventListener('paste', handlePaste as any);
     editorElement.addEventListener('drop', handleDrop as any);
-  }
+
+    return () => {
+      editorElement.removeEventListener('paste', handlePaste as any);
+      editorElement.removeEventListener('drop', handleDrop as any);
+    };
+  }, [editor, editable, onImageUpload]);
 
   if (!editor) {
     return null;

@@ -53,7 +53,8 @@ export default function ContentRenderer({ html, className = '' }: ContentRendere
       'colspan', 'rowspan', // Tables
     ],
     ALLOWED_CLASSES: {
-      '*': ['hljs-*', 'mention', 'code-*'],
+      span: ['hljs-comment', 'hljs-keyword', 'hljs-string', 'hljs-number', 'hljs-function', 'hljs-title', 'hljs-variable', 'mention'],
+      code: ['language-javascript', 'language-typescript', 'language-python', 'language-java', 'language-csharp', 'language-cpp', 'language-sql', 'language-html', 'language-xml', 'language-css', 'language-json', 'language-yaml', 'language-bash', 'language-powershell', 'language-markdown'],
     },
   });
 

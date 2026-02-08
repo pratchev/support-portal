@@ -18,24 +18,24 @@ const registerSchema = z.object({
 });
 
 // POST /api/auth/login
-router.post('/login', authLimiter, validateBody(loginSchema), async (req, res, next) => {
+router.post('/login', authLimiter, validateBody(loginSchema), async (req, res, _next) => {
   try {
     const { email, password } = req.body;
     const result = await userService.authenticate(email, password);
-    res.json(result);
+    return res.json(result);
   } catch (error) {
-    res.status(401).json({ error: 'Invalid credentials' });
+    return res.status(401).json({ error: 'Invalid credentials' });
   }
 });
 
 // POST /api/auth/register
 router.post('/register', validateBody(registerSchema), async (req, res, next) => {
   try {
-    const user = await userService.createUser(req.body);
+    await userService.createUser(req.body);
     const result = await userService.authenticate(req.body.email, req.body.password);
-    res.status(201).json(result);
+    return res.status(201).json(result);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

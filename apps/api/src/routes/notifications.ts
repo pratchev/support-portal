@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, requireRole } from '@/middleware/auth';
+import { authenticate, requireRole, AuthRequest } from '@/middleware/auth';
 import { prisma } from '@/config/database';
 import { notificationService } from '@/services/notificationService';
 import { logger } from '@/utils/logger';
@@ -39,7 +39,7 @@ const testEmailSchema = z.object({
 });
 
 // GET /api/notifications/settings - Get system settings (admin only)
-router.get('/settings', authenticate, requireRole('ADMIN'), async (req, res, next) => {
+router.get('/settings', authenticate, requireRole('ADMIN'), async (_req: AuthRequest, res, next) => {
   try {
     let settings = await prisma.notificationSettings.findFirst();
     
@@ -102,7 +102,7 @@ router.put(
 );
 
 // GET /api/notifications/preferences - Get user preferences
-router.get('/preferences', authenticate, async (req, res, next) => {
+router.get('/preferences', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const userId = req.user!.id;
     
@@ -128,7 +128,7 @@ router.put(
   '/preferences',
   authenticate,
   validateBody(updatePreferencesSchema),
-  async (req, res, next) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const userId = req.user!.id;
       const data = req.body;
@@ -168,17 +168,17 @@ router.post(
   authenticate,
   requireRole('ADMIN'),
   validateBody(testEmailSchema),
-  async (req, res, next) => {
+  async (req: AuthRequest, res, _next) => {
     try {
       const { recipientEmail } = req.body;
       
       await notificationService.sendTestEmail(recipientEmail);
       
       logger.info(`Test email sent to ${recipientEmail}`);
-      res.json({ message: 'Test email sent successfully' });
+      return res.json({ message: 'Test email sent successfully' });
     } catch (error) {
       logger.error('Failed to send test email:', error);
-      res.status(500).json({ 
+      return res.status(500).json({ 
         error: 'Failed to send test email',
         message: error instanceof Error ? error.message : 'Unknown error',
       });

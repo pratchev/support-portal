@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '@/middleware/auth';
+import { authenticate, AuthRequest } from '@/middleware/auth';
 import { uploadMultiple } from '@/middleware/upload';
 import { uploadLimiter } from '@/middleware/rateLimiter';
 import { prisma } from '@/config/database';
@@ -13,7 +13,7 @@ router.post(
   authenticate,
   uploadLimiter,
   uploadMultiple,
-  async (req, res, next) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const files = req.files as Express.Multer.File[];
       
@@ -35,15 +35,15 @@ router.post(
       );
       
       logger.info(`${files.length} attachments uploaded`);
-      res.status(201).json(attachments);
+      return res.status(201).json(attachments);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
 
 // GET /api/attachments/:id - Get attachment details
-router.get('/:id', authenticate, async (req, res, next) => {
+router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const attachment = await prisma.attachment.findUnique({
       where: { id: req.params.id },
@@ -53,9 +53,9 @@ router.get('/:id', authenticate, async (req, res, next) => {
       return res.status(404).json({ error: 'Attachment not found' });
     }
     
-    res.json(attachment);
+    return res.json(attachment);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

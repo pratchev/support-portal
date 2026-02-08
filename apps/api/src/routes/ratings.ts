@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '@/middleware/auth';
+import { authenticate, AuthRequest } from '@/middleware/auth';
 import { prisma } from '@/config/database';
 import { validateBody } from '@/middleware/validation';
 import { z } from 'zod';
@@ -13,7 +13,7 @@ const createRatingSchema = z.object({
 });
 
 // POST /api/ratings - Create rating
-router.post('/', authenticate, validateBody(createRatingSchema), async (req, res, next) => {
+router.post('/', authenticate, validateBody(createRatingSchema), async (req: AuthRequest, res, next) => {
   try {
     const { ticketId, score, feedback } = req.body;
     const userId = req.user!.id;
@@ -42,9 +42,9 @@ router.post('/', authenticate, validateBody(createRatingSchema), async (req, res
       },
     });
     
-    res.status(201).json(rating);
+    return res.status(201).json(rating);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -64,9 +64,9 @@ router.get('/ticket/:ticketId', async (req, res, next) => {
       return res.status(404).json({ error: 'Rating not found' });
     }
     
-    res.json(rating);
+    return res.json(rating);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

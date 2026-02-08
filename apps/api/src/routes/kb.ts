@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate, requireRole } from '@/middleware/auth';
+import { authenticate, requireRole, AuthRequest } from '@/middleware/auth';
 import { kbService } from '@/services/kbService';
 import { validateBody } from '@/middleware/validation';
 import { z } from 'zod';
@@ -46,9 +46,9 @@ router.get('/search', async (req, res, next) => {
       return res.status(400).json({ error: 'Search query required' });
     }
     const articles = await kbService.searchArticles(q as string);
-    res.json(articles);
+    return res.json(articles);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -71,15 +71,15 @@ router.post(
   authenticate,
   requireRole('AGENT', 'ADMIN'),
   validateBody(createArticleSchema),
-  async (req, res, next) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const article = await kbService.createArticle({
         ...req.body,
         authorId: req.user!.id,
       });
-      res.status(201).json(article);
+      return res.status(201).json(article);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -91,9 +91,9 @@ router.get('/:id', async (req, res, next) => {
     if (!article) {
       return res.status(404).json({ error: 'Article not found' });
     }
-    res.json(article);
+    return res.json(article);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 

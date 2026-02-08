@@ -2,7 +2,6 @@ import { Client } from '@microsoft/microsoft-graph-client';
 import { ClientSecretCredential } from '@azure/identity';
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
-import { env } from '@/config/env';
 import { ticketService } from './ticketService';
 
 class EmailService {

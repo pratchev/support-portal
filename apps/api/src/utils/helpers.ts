@@ -73,7 +73,7 @@ export const populateTemplate = (template: string, data: Record<string, any>): s
   });
   
   // Handle conditional blocks {{#variable}}...{{/variable}}
-  result = result.replace(/{{#(\w+)}}([\s\S]*?){{\/\1}}/g, (match, key, content) => {
+  result = result.replace(/{{#(\w+)}}([\s\S]*?){{\/\1}}/g, (_match, key, content) => {
     return data[key] ? content : '';
   });
   

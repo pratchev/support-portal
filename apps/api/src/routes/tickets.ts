@@ -3,7 +3,6 @@ import { authenticate, requireRole, optionalAuth, AuthRequest } from '@/middlewa
 import { ticketService } from '@/services/ticketService';
 import { validateBody } from '@/middleware/validation';
 import { z } from 'zod';
-import { logger } from '@/utils/logger';
 
 const router = Router();
 
@@ -34,7 +33,7 @@ const addResponseSchema = z.object({
 });
 
 // GET /api/tickets - Get all tickets
-router.get('/', authenticate, async (req, res, next) => {
+router.get('/', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const { status, priority, category, search, page, limit } = req.query;
     const user = req.user!;
@@ -61,7 +60,7 @@ router.get('/', authenticate, async (req, res, next) => {
 });
 
 // POST /api/tickets - Create a new ticket
-router.post('/', authenticate, validateBody(createTicketSchema), async (req, res, next) => {
+router.post('/', authenticate, validateBody(createTicketSchema), async (req: AuthRequest, res, next) => {
   try {
     const user = req.user!;
     
@@ -78,7 +77,7 @@ router.post('/', authenticate, validateBody(createTicketSchema), async (req, res
 });
 
 // GET /api/tickets/stats - Get ticket statistics
-router.get('/stats', authenticate, async (req, res, next) => {
+router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const user = req.user!;
     const agentId = user.role === 'USER' ? undefined : user.id;
@@ -91,7 +90,7 @@ router.get('/stats', authenticate, async (req, res, next) => {
 });
 
 // GET /api/tickets/:id - Get ticket by ID
-router.get('/:id', authenticate, async (req, res, next) => {
+router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const user = req.user!;
     const includeInternal = user.role !== 'USER';
@@ -107,14 +106,14 @@ router.get('/:id', authenticate, async (req, res, next) => {
       return res.status(403).json({ error: 'Access denied' });
     }
     
-    res.json(ticket);
+    return res.json(ticket);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
 // GET /api/tickets/tracking/:token - Get ticket by tracking token (public)
-router.get('/tracking/:token', optionalAuth, async (req, res, next) => {
+router.get('/tracking/:token', optionalAuth, async (req: AuthRequest, res, next) => {
   try {
     const ticket = await ticketService.getTicketByTrackingToken(req.params.token);
     
@@ -122,9 +121,9 @@ router.get('/tracking/:token', optionalAuth, async (req, res, next) => {
       return res.status(404).json({ error: 'Ticket not found' });
     }
     
-    res.json(ticket);
+    return res.json(ticket);
   } catch (error) {
-    next(error);
+    return next(error);
   }
 });
 
@@ -166,7 +165,7 @@ router.post(
   '/:id/responses',
   authenticate,
   validateBody(addResponseSchema),
-  async (req, res, next) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const user = req.user!;
       const { content, isInternal } = req.body;

@@ -92,7 +92,7 @@ Subject: ${ticket.subject}
 Description: ${ticket.description}
 
 Recent responses:
-${ticket.responses.map((r, i) => `${i + 1}. ${r.content}`).join('\n')}
+${ticket.responses.map((r: any, i: number) => `${i + 1}. ${r.content}`).join('\n')}
 `;
 
       const prompt = `Provide a concise 2-3 sentence summary of this support ticket and its current status:
@@ -151,7 +151,7 @@ ${context}`;
       const context = `
 Ticket: ${ticket.subject}
 Description: ${ticket.description}
-${ticket.responses.length > 0 ? `\nRecent conversation:\n${ticket.responses.map(r => r.content).join('\n')}` : ''}
+${ticket.responses.length > 0 ? `\nRecent conversation:\n${ticket.responses.map((r: any) => r.content).join('\n')}` : ''}
 `;
 
       const prompt = `Based on this support ticket, suggest a helpful response:

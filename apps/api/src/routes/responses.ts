@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticate } from '@/middleware/auth';
+import { authenticate, AuthRequest } from '@/middleware/auth';
 import { prisma } from '@/config/database';
 import { z } from 'zod';
 import { validateBody } from '@/middleware/validation';
@@ -15,7 +15,7 @@ router.post(
   '/:id/reactions',
   authenticate,
   validateBody(addReactionSchema),
-  async (req, res, next) => {
+  async (req: AuthRequest, res, next) => {
     try {
       const { emoji } = req.body;
       const userId = req.user!.id;
@@ -51,15 +51,15 @@ router.post(
         },
       });
       
-      res.status(201).json(reaction);
+      return res.status(201).json(reaction);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
 
 // DELETE /api/responses/:id/reactions - Remove reaction
-router.delete('/:id/reactions', authenticate, async (req, res, next) => {
+router.delete('/:id/reactions', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const userId = req.user!.id;
     const responseId = req.params.id;

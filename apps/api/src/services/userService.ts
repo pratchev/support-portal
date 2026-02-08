@@ -1,7 +1,7 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { hashPassword, comparePassword } from '@/utils/helpers';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '@/config/env';
 
 interface CreateUserInput {
@@ -160,11 +160,10 @@ class UserService {
       data: { lastLogin: new Date() },
     });
     
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN }
-    );
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const secret = env.JWT_SECRET;
+    const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN as any };
+    const token = jwt.sign(payload, secret, options);
     
     logger.info(`User authenticated: ${user.email}`);
     

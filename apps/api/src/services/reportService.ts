@@ -60,7 +60,7 @@ class ReportService {
     let totalResponseTime = 0;
     let ticketsWithResponses = 0;
     
-    tickets.forEach(ticket => {
+    tickets.forEach((ticket: any) => {
       if (ticket.responses.length > 0) {
         const responseTime = ticket.responses[0].createdAt.getTime() - ticket.createdAt.getTime();
         totalResponseTime += responseTime;
@@ -80,7 +80,7 @@ class ReportService {
       _count: true,
     });
     
-    return results.map(r => ({
+    return results.map((r: any) => ({
       priority: r.priority,
       count: r._count,
     }));
@@ -93,7 +93,7 @@ class ReportService {
       _count: true,
     });
     
-    return results.map(r => ({
+    return results.map((r: any) => ({
       category: r.category,
       count: r._count,
     }));
@@ -106,7 +106,7 @@ class ReportService {
       _count: true,
     });
     
-    return results.map(r => ({
+    return results.map((r: any) => ({
       status: r.status,
       count: r._count,
     }));
@@ -141,7 +141,7 @@ class ReportService {
       
       const agentStats = new Map();
       
-      assignments.forEach(assignment => {
+      assignments.forEach((assignment: any) => {
         const agentId = assignment.agent.id;
         
         if (!agentStats.has(agentId)) {
@@ -198,12 +198,12 @@ class ReportService {
       
       const totalRatings = ratings.length;
       const avgScore = totalRatings > 0
-        ? ratings.reduce((sum, r) => sum + r.score, 0) / totalRatings
+        ? ratings.reduce((sum: number, r: any) => sum + r.score, 0) / totalRatings
         : 0;
       
       const distribution = [1, 2, 3, 4, 5].map(score => ({
         score,
-        count: ratings.filter(r => r.score === score).length,
+        count: ratings.filter((r: any) => r.score === score).length,
       }));
       
       return {

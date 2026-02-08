@@ -22,8 +22,8 @@ router.use('/reports', reportsRouter);
 router.use('/notifications', notificationsRouter);
 
 // Health check
-router.get('/health', (req, res) => {
-  res.json({ 
+router.get('/health', (_req, res) => {
+  return res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
     service: 'support-portal-api',

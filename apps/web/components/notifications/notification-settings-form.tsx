@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { apiClient } from '@/lib/api-client';
-import { EMAIL_PROVIDERS } from '@/lib/constants';
 
 const notificationSettingsSchema = z.object({
   notifyEndUserOnReply: z.boolean(),

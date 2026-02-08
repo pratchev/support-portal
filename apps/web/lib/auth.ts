@@ -1,8 +1,15 @@
-import NextAuth from 'next-auth';
+import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { apiClient } from './api-client';
 
-export const authOptions = {
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -10,13 +17,13 @@ export const authOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials): Promise<User | null> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
         try {
-          const user = await apiClient.post('/auth/login', {
+          const user = await apiClient.post<User>('/auth/login', {
             email: credentials.email,
             password: credentials.password,
           });

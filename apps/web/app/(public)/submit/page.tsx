@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TicketForm } from '@/components/tickets/ticket-form';
 import { apiClient } from '@/lib/api-client';
@@ -10,7 +9,7 @@ export default function SubmitTicketPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      const response = await apiClient.post('/tickets/public', data);
+      const response = await apiClient.post<{ trackingToken: string }>('/tickets/public', data);
       router.push(`/track/${response.trackingToken}`);
     } catch (error) {
       console.error('Failed to submit ticket:', error);

@@ -10,7 +10,6 @@ import {
   BarChart,
   Settings,
   BookOpen,
-  MessageSquare,
 } from 'lucide-react';
 
 interface SidebarProps {

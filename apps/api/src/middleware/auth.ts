@@ -42,7 +42,7 @@ export const authenticate = async (
     }
     
     req.user = user;
-    next();
+    return next();
   } catch (error) {
     logger.error('Authentication error:', error);
     return res.status(401).json({ error: 'Invalid token' });
@@ -59,13 +59,13 @@ export const requireRole = (...roles: string[]) => {
       return res.status(403).json({ error: 'Insufficient permissions' });
     }
     
-    next();
+    return next();
   };
 };
 
 export const optionalAuth = async (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {

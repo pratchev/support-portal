@@ -6,7 +6,7 @@ import { logger } from '@/utils/logger';
 export const startEmailIngestionWorker = () => {
   const worker = new Worker(
     'email-ingestion',
-    async (job) => {
+    async (_job) => {
       logger.info('Processing email ingestion job');
       
       try {

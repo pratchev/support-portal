@@ -1,0 +1,74 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(uuid())
+  email       String       @unique
+  name        String?
+  password    String
+  role        String       @default("user") // user, agent, admin
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  tickets     Ticket[]
+  responses   Response[]
+  attachments Attachment[]
+}
+
+model Ticket {
+  id           String       @id @default(uuid())
+  ticketNumber String       @unique
+  title        String
+  description  String       @db.Text
+  status       String       @default("open") // open, in_progress, closed
+  priority     String       @default("medium") // low, medium, high, urgent
+  category     String?
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  responses    Response[]
+  attachments  Attachment[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Response {
+  id          String       @id @default(uuid())
+  content     String       @db.Text
+  ticketId    String
+  ticket      Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  attachments Attachment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Attachment {
+  id            String    @id @default(uuid())
+  ticketId      String?
+  ticket        Ticket?   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  responseId    String?
+  response      Response? @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  fileName      String
+  originalName  String    // Original file name from user
+  filePath      String
+  fileUrl       String    // Public URL to access the file
+  thumbnailPath String?   // Path to thumbnail (for images)
+  thumbnailUrl  String?   // URL to thumbnail
+  fileSize      BigInt
+  mimeType      String
+  fileType      String    // image, document, archive, code, other
+  width         Int?      // Image width (for images only)
+  height        Int?      // Image height (for images only)
+  isInline      Boolean   @default(false) // true if embedded in content, false if attachment
+  uploadedBy    String?
+  uploader      User?     @relation(fields: [uploadedBy], references: [id])
+  createdAt     DateTime  @default(now())
+}

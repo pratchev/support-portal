@@ -1,4 +1,4 @@
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -17,5 +17,5 @@ export interface ErrorResponse {
   success: false;
   error: string;
   statusCode: number;
-  details?: any;
+  details?: Record<string, unknown>;
 }

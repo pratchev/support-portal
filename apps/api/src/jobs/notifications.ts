@@ -17,6 +17,10 @@ interface EmailJobData {
   };
 }
 
+interface NotificationServiceWithSendEmail {
+  sendEmail(emailData: EmailData): Promise<void>;
+}
+
 export const startNotificationWorker = () => {
   const worker = new Worker<EmailJobData>(
     'email',
@@ -27,7 +31,7 @@ export const startNotificationWorker = () => {
       try {
         // The actual sending is handled through the service
         // This worker just processes the queue
-        await (notificationService as any).sendEmail(emailData);
+        await (notificationService as NotificationServiceWithSendEmail).sendEmail(emailData);
         logger.info(`Email notification sent to ${emailData.to}`);
       } catch (error) {
         logger.error(`Failed to send email to ${emailData.to}:`, error);

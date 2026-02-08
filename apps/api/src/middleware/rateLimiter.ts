@@ -33,11 +33,11 @@ export const rateLimiter = (options: RateLimitOptions) => {
         });
       }
       
-      next();
+      return next();
     } catch (error) {
       logger.error('Rate limiter error:', error);
       // Fail open - don't block requests if rate limiter fails
-      next();
+      return next();
     }
   };
 };

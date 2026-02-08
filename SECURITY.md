@@ -28,9 +28,11 @@ This document tracks security vulnerabilities and their remediation in the Suppo
 - **Status**: ✅ FIXED
 - **Date Fixed**: 2026-02-08
 
-## Remaining Vulnerabilities (Development Only)
+## Remaining Vulnerabilities (Install-Time Only)
 
-### Development Dependencies (Not in Production)
+### Installation Phase Dependencies
+
+These vulnerabilities only affect the package installation phase, not the running application:
 
 #### 1. esbuild Development Server (MODERATE)
 - **Package**: esbuild (via vite)
@@ -41,12 +43,13 @@ This document tracks security vulnerabilities and their remediation in the Suppo
 - **Reason**: Would require breaking changes to vitest; does not affect production
 
 #### 2. node-tar Path Sanitization (HIGH)
-- **Package**: tar (indirect via @mapbox/node-pre-gyp)
+- **Package**: tar (indirect via @mapbox/node-pre-gyp via bcrypt)
 - **Severity**: High
 - **CVE**: GHSA-8qq5-rm4j-mr97, GHSA-r6q2-hw4h-h46w, GHSA-34x7-hfp2-rc4v
-- **Impact**: Only used during build process for native modules
-- **Status**: ⚠️ ACCEPTED RISK (indirect dev dependency)
-- **Reason**: Indirect dependency; not used in production runtime
+- **Impact**: Only used during npm install to download pre-built bcrypt binaries
+- **Status**: ⚠️ ACCEPTED RISK (install-time only)
+- **Reason**: Not used in production runtime; only during package installation
+- **Mitigation**: Use trusted npm registry, verify package integrity, install in secure environment
 
 ## Production Security Status
 

@@ -27,6 +27,21 @@ interface NotificationContext {
   userId?: string;
 }
 
+interface NotificationSettings {
+  emailEnabled: boolean;
+  useGraphApi: boolean;
+  graphClientId?: string | null;
+  graphClientSecret?: string | null;
+  graphTenantId?: string | null;
+  smtpHost?: string | null;
+  smtpPort?: number | null;
+  smtpSecure?: boolean;
+  smtpUser?: string | null;
+  smtpPassword?: string | null;
+  fromEmail: string | null;
+  fromName: string;
+}
+
 class NotificationService {
   private async getNotificationSettings() {
     const settings = await prisma.notificationSettings.findFirst();
@@ -51,7 +66,7 @@ class NotificationService {
     return preferences;
   }
 
-  private async getGraphClient(settings: any): Promise<Client | null> {
+  private async getGraphClient(settings: NotificationSettings): Promise<Client | null> {
     if (!settings.useGraphApi || !settings.graphClientId || !settings.graphClientSecret || !settings.graphTenantId) {
       return null;
     }
@@ -77,7 +92,7 @@ class NotificationService {
     }
   }
 
-  private async getSMTPTransporter(settings: any) {
+  private async getSMTPTransporter(settings: NotificationSettings) {
     if (!settings.smtpHost || !settings.smtpPort) {
       throw new Error('SMTP configuration is incomplete');
     }
@@ -93,7 +108,7 @@ class NotificationService {
     });
   }
 
-  private async sendEmailViaGraph(graphClient: Client, emailData: EmailData, settings: any) {
+  private async sendEmailViaGraph(graphClient: Client, emailData: EmailData, settings: NotificationSettings) {
     const message = {
       message: {
         subject: emailData.subject,
@@ -120,7 +135,7 @@ class NotificationService {
     await graphClient.api('/me/sendMail').post(message);
   }
 
-  private async sendEmailViaSMTP(transporter: any, emailData: EmailData, settings: any) {
+  private async sendEmailViaSMTP(transporter: nodemailer.Transporter, emailData: EmailData, settings: NotificationSettings) {
     await transporter.sendMail({
       from: emailData.from || `"${settings.fromName}" <${settings.fromEmail}>`,
       to: emailData.to,

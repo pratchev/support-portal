@@ -32,13 +32,23 @@ const addResponseSchema = z.object({
   isInternal: z.boolean().optional(),
 });
 
+interface TicketQueryOptions {
+  status?: string;
+  priority?: string;
+  category?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+  customerId?: string;
+}
+
 // GET /api/tickets - Get all tickets
 router.get('/', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const { status, priority, category, search, page, limit } = req.query;
     const user = req.user!;
     
-    const options: any = {
+    const options: TicketQueryOptions = {
       status: status as string,
       priority: priority as string,
       category: category as string,

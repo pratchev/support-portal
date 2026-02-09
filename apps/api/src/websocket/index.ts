@@ -4,6 +4,12 @@ import jwt from 'jsonwebtoken';
 import { env } from '@/config/env';
 import { logger } from '@/utils/logger';
 
+interface JwtUserPayload {
+  id: string;
+  email: string;
+  role: string;
+}
+
 export const initializeWebSocket = (server: HTTPServer) => {
   const io = new Server(server, {
     cors: {
@@ -21,7 +27,7 @@ export const initializeWebSocket = (server: HTTPServer) => {
     }
     
     try {
-      const decoded = jwt.verify(token, env.JWT_SECRET) as any;
+      const decoded = jwt.verify(token, env.JWT_SECRET) as JwtUserPayload;
       socket.data.user = decoded;
       next();
     } catch (error) {
@@ -61,18 +67,18 @@ export const initializeWebSocket = (server: HTTPServer) => {
 };
 
 // Helper function to emit events (import this in other files)
-export const emitTicketUpdate = (io: Server, ticketId: string, data: any) => {
+export const emitTicketUpdate = (io: Server, ticketId: string, data: Record<string, unknown>) => {
   io.to(`ticket:${ticketId}`).emit('ticket:update', data);
 };
 
-export const emitNewTicket = (io: Server, data: any) => {
+export const emitNewTicket = (io: Server, data: Record<string, unknown>) => {
   io.to('role:AGENT').to('role:ADMIN').emit('ticket:new', data);
 };
 
-export const emitNewResponse = (io: Server, ticketId: string, data: any) => {
+export const emitNewResponse = (io: Server, ticketId: string, data: Record<string, unknown>) => {
   io.to(`ticket:${ticketId}`).emit('response:new', data);
 };
 
-export const emitNotification = (io: Server, userId: string, data: any) => {
+export const emitNotification = (io: Server, userId: string, data: Record<string, unknown>) => {
   io.to(`user:${userId}`).emit('notification', data);
 };

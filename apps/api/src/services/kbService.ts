@@ -1,6 +1,5 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
-import { Prisma } from '@prisma/client';
 
 interface CreateArticleInput {
   title: string;
@@ -61,7 +60,7 @@ class KBService {
       limit = 20,
     } = options;
     
-    const where: Prisma.KBArticleWhereInput = { isPublished: published };
+    const where: Record<string, unknown> = { isPublished: published };
     
     if (category) where.category = category;
     if (search) {

@@ -1,6 +1,16 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 
+type TicketWithResponses = { 
+  createdAt: Date; 
+  responses: { createdAt: Date }[] 
+};
+
+type AssignmentWithDetails = { 
+  agent: { id: string; name: string }; 
+  ticket: { status: string; priority: string; createdAt: Date; resolvedAt: Date | null } 
+};
+
 class ReportService {
   async getTicketMetrics(startDate?: Date, endDate?: Date) {
     try {
@@ -60,7 +70,7 @@ class ReportService {
     let totalResponseTime = 0;
     let ticketsWithResponses = 0;
     
-    tickets.forEach((ticket: { createdAt: Date; responses: { createdAt: Date }[] }) => {
+    tickets.forEach((ticket: TicketWithResponses) => {
       if (ticket.responses.length > 0) {
         const responseTime = ticket.responses[0].createdAt.getTime() - ticket.createdAt.getTime();
         totalResponseTime += responseTime;
@@ -148,7 +158,7 @@ class ReportService {
       }
       const agentStats = new Map<string, AgentStats>();
       
-      assignments.forEach((assignment: { agent: { id: string; name: string }; ticket: { status: string; priority: string; createdAt: Date; resolvedAt: Date | null } }) => {
+      assignments.forEach((assignment: AssignmentWithDetails) => {
         const agentId = assignment.agent.id;
         
         if (!agentStats.has(agentId)) {

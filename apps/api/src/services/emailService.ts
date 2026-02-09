@@ -4,6 +4,19 @@ import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { ticketService } from './ticketService';
 
+interface GraphMessage {
+  id: string;
+  subject: string;
+  bodyPreview: string;
+  from: {
+    emailAddress: {
+      address: string;
+      name?: string;
+    };
+  };
+  receivedDateTime: string;
+}
+
 class EmailService {
   private client: Client | null = null;
 
@@ -62,7 +75,7 @@ class EmailService {
     }
   }
 
-  private async processEmail(message: any) {
+  private async processEmail(message: GraphMessage) {
     try {
       const subject = message.subject;
       const from = message.from.emailAddress;

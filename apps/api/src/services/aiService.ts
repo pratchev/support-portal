@@ -2,6 +2,7 @@ import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { env } from '@/config/env';
+import { SentimentScore } from '@prisma/client';
 
 class AIService {
   private client: OpenAIClient | null = null;
@@ -52,7 +53,7 @@ Respond with only one word: VERY_NEGATIVE, NEGATIVE, NEUTRAL, POSITIVE, or VERY_
       if (sentiment) {
         await prisma.ticket.update({
           where: { id: ticketId },
-          data: { sentimentScore: sentiment as any },
+          data: { sentimentScore: sentiment as SentimentScore },
         });
         
         logger.info(`Sentiment analyzed for ticket #${ticket.ticketNumber}: ${sentiment}`);
@@ -92,7 +93,7 @@ Subject: ${ticket.subject}
 Description: ${ticket.description}
 
 Recent responses:
-${ticket.responses.map((r: any, i: number) => `${i + 1}. ${r.content}`).join('\n')}
+${ticket.responses.map((r: { content: string }, i: number) => `${i + 1}. ${r.content}`).join('\n')}
 `;
 
       const prompt = `Provide a concise 2-3 sentence summary of this support ticket and its current status:
@@ -151,7 +152,7 @@ ${context}`;
       const context = `
 Ticket: ${ticket.subject}
 Description: ${ticket.description}
-${ticket.responses.length > 0 ? `\nRecent conversation:\n${ticket.responses.map((r: any) => r.content).join('\n')}` : ''}
+${ticket.responses.length > 0 ? `\nRecent conversation:\n${ticket.responses.map((r: { content: string }) => r.content).join('\n')}` : ''}
 `;
 
       const prompt = `Based on this support ticket, suggest a helpful response:

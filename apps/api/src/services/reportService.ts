@@ -1,10 +1,11 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
+import { Prisma } from '@prisma/client';
 
 class ReportService {
   async getTicketMetrics(startDate?: Date, endDate?: Date) {
     try {
-      const where: any = {};
+      const where: Prisma.TicketWhereInput = {};
       
       if (startDate && endDate) {
         where.createdAt = {
@@ -46,7 +47,7 @@ class ReportService {
     }
   }
 
-  private async calculateAvgResponseTime(where: any) {
+  private async calculateAvgResponseTime(where: Prisma.TicketWhereInput) {
     const tickets = await prisma.ticket.findMany({
       where,
       include: {
@@ -60,7 +61,7 @@ class ReportService {
     let totalResponseTime = 0;
     let ticketsWithResponses = 0;
     
-    tickets.forEach((ticket: any) => {
+    tickets.forEach((ticket) => {
       if (ticket.responses.length > 0) {
         const responseTime = ticket.responses[0].createdAt.getTime() - ticket.createdAt.getTime();
         totalResponseTime += responseTime;
@@ -73,40 +74,40 @@ class ReportService {
       : 0;
   }
 
-  private async getTicketsByPriority(where: any) {
+  private async getTicketsByPriority(where: Prisma.TicketWhereInput) {
     const results = await prisma.ticket.groupBy({
       by: ['priority'],
       where,
       _count: true,
     });
     
-    return results.map((r: any) => ({
+    return results.map((r) => ({
       priority: r.priority,
       count: r._count,
     }));
   }
 
-  private async getTicketsByCategory(where: any) {
+  private async getTicketsByCategory(where: Prisma.TicketWhereInput) {
     const results = await prisma.ticket.groupBy({
       by: ['category'],
       where,
       _count: true,
     });
     
-    return results.map((r: any) => ({
+    return results.map((r) => ({
       category: r.category,
       count: r._count,
     }));
   }
 
-  private async getTicketsByStatus(where: any) {
+  private async getTicketsByStatus(where: Prisma.TicketWhereInput) {
     const results = await prisma.ticket.groupBy({
       by: ['status'],
       where,
       _count: true,
     });
     
-    return results.map((r: any) => ({
+    return results.map((r) => ({
       status: r.status,
       count: r._count,
     }));
@@ -114,7 +115,7 @@ class ReportService {
 
   async getAgentPerformance(agentId?: string, startDate?: Date, endDate?: Date) {
     try {
-      const where: any = {};
+      const where: Prisma.TicketAssignmentWhereInput = {};
       
       if (startDate && endDate) {
         where.assignedAt = {
@@ -141,7 +142,7 @@ class ReportService {
       
       const agentStats = new Map();
       
-      assignments.forEach((assignment: any) => {
+      assignments.forEach((assignment) => {
         const agentId = assignment.agent.id;
         
         if (!agentStats.has(agentId)) {
@@ -178,7 +179,7 @@ class ReportService {
 
   async getCustomerSatisfaction(startDate?: Date, endDate?: Date) {
     try {
-      const where: any = {};
+      const where: Prisma.RatingWhereInput = {};
       
       if (startDate && endDate) {
         where.createdAt = {
@@ -198,12 +199,12 @@ class ReportService {
       
       const totalRatings = ratings.length;
       const avgScore = totalRatings > 0
-        ? ratings.reduce((sum: number, r: any) => sum + r.score, 0) / totalRatings
+        ? ratings.reduce((sum, r) => sum + r.score, 0) / totalRatings
         : 0;
       
       const distribution = [1, 2, 3, 4, 5].map(score => ({
         score,
-        count: ratings.filter((r: any) => r.score === score).length,
+        count: ratings.filter((r) => r.score === score).length,
       }));
       
       return {

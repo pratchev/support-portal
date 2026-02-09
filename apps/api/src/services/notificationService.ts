@@ -27,19 +27,22 @@ interface NotificationContext {
   userId?: string;
 }
 
-interface NotificationSettings {
+interface NotificationSettingsData {
+  id: string;
   emailEnabled: boolean;
+  smtpHost: string | null;
+  smtpPort: number | null;
+  smtpSecure: boolean;
+  smtpUser: string | null;
+  smtpPassword: string | null;
   useGraphApi: boolean;
-  graphClientId?: string | null;
-  graphClientSecret?: string | null;
-  graphTenantId?: string | null;
-  smtpHost?: string | null;
-  smtpPort?: number | null;
-  smtpSecure?: boolean;
-  smtpUser?: string | null;
-  smtpPassword?: string | null;
+  graphClientId: string | null;
+  graphClientSecret: string | null;
+  graphTenantId: string | null;
   fromEmail: string | null;
   fromName: string;
+  replyToEmail: string | null;
+  updatedAt: Date;
 }
 
 class NotificationService {
@@ -66,7 +69,7 @@ class NotificationService {
     return preferences;
   }
 
-  private async getGraphClient(settings: NotificationSettings): Promise<Client | null> {
+  private async getGraphClient(settings: NotificationSettingsData): Promise<Client | null> {
     if (!settings.useGraphApi || !settings.graphClientId || !settings.graphClientSecret || !settings.graphTenantId) {
       return null;
     }
@@ -92,7 +95,7 @@ class NotificationService {
     }
   }
 
-  private async getSMTPTransporter(settings: NotificationSettings) {
+  private async getSMTPTransporter(settings: NotificationSettingsData) {
     if (!settings.smtpHost || !settings.smtpPort) {
       throw new Error('SMTP configuration is incomplete');
     }
@@ -108,7 +111,7 @@ class NotificationService {
     });
   }
 
-  private async sendEmailViaGraph(graphClient: Client, emailData: EmailData, settings: NotificationSettings) {
+  private async sendEmailViaGraph(graphClient: Client, emailData: EmailData, settings: NotificationSettingsData) {
     const message = {
       message: {
         subject: emailData.subject,
@@ -135,7 +138,7 @@ class NotificationService {
     await graphClient.api('/me/sendMail').post(message);
   }
 
-  private async sendEmailViaSMTP(transporter: nodemailer.Transporter, emailData: EmailData, settings: NotificationSettings) {
+  private async sendEmailViaSMTP(transporter: nodemailer.Transporter, emailData: EmailData, settings: NotificationSettingsData) {
     await transporter.sendMail({
       from: emailData.from || `"${settings.fromName}" <${settings.fromEmail}>`,
       to: emailData.to,

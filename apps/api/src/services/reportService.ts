@@ -60,7 +60,7 @@ class ReportService {
     let totalResponseTime = 0;
     let ticketsWithResponses = 0;
     
-    tickets.forEach((ticket) => {
+    tickets.forEach((ticket: { createdAt: Date; responses: { createdAt: Date }[] }) => {
       if (ticket.responses.length > 0) {
         const responseTime = ticket.responses[0].createdAt.getTime() - ticket.createdAt.getTime();
         totalResponseTime += responseTime;
@@ -80,7 +80,7 @@ class ReportService {
       _count: true,
     });
     
-    return results.map((r) => ({
+    return results.map((r: { priority: string; _count: number }) => ({
       priority: r.priority,
       count: r._count,
     }));
@@ -93,7 +93,7 @@ class ReportService {
       _count: true,
     });
     
-    return results.map((r) => ({
+    return results.map((r: { category: string; _count: number }) => ({
       category: r.category,
       count: r._count,
     }));
@@ -106,7 +106,7 @@ class ReportService {
       _count: true,
     });
     
-    return results.map((r) => ({
+    return results.map((r: { status: string; _count: number }) => ({
       status: r.status,
       count: r._count,
     }));
@@ -139,9 +139,16 @@ class ReportService {
         },
       });
       
-      const agentStats = new Map();
+      interface AgentStats {
+        agentId: string;
+        agentName: string;
+        totalAssigned: number;
+        resolved: number;
+        avgResolutionTime: number;
+      }
+      const agentStats = new Map<string, AgentStats>();
       
-      assignments.forEach((assignment) => {
+      assignments.forEach((assignment: { agent: { id: string; name: string }; ticket: { status: string; priority: string; createdAt: Date; resolvedAt: Date | null } }) => {
         const agentId = assignment.agent.id;
         
         if (!agentStats.has(agentId)) {
@@ -154,7 +161,7 @@ class ReportService {
           });
         }
         
-        const stats = agentStats.get(agentId);
+        const stats = agentStats.get(agentId)!;
         stats.totalAssigned++;
         
         if (assignment.ticket.status === 'RESOLVED' && assignment.ticket.resolvedAt) {
@@ -164,7 +171,7 @@ class ReportService {
         }
       });
       
-      return Array.from(agentStats.values()).map(stats => ({
+      return Array.from(agentStats.values()).map((stats: AgentStats) => ({
         ...stats,
         avgResolutionTime: stats.resolved > 0 
           ? Math.floor(stats.avgResolutionTime / stats.resolved / (1000 * 60 * 60)) // in hours
@@ -198,12 +205,12 @@ class ReportService {
       
       const totalRatings = ratings.length;
       const avgScore = totalRatings > 0
-        ? ratings.reduce((sum, r) => sum + r.score, 0) / totalRatings
+        ? ratings.reduce((sum: number, r: { score: number }) => sum + r.score, 0) / totalRatings
         : 0;
       
       const distribution = [1, 2, 3, 4, 5].map(score => ({
         score,
-        count: ratings.filter((r) => r.score === score).length,
+        count: ratings.filter((r: { score: number }) => r.score === score).length,
       }));
       
       return {

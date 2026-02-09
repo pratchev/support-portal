@@ -17,6 +17,9 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@azure/identity": "^4.0.0",
     "@azure/openai": "^1.0.0-beta.12",

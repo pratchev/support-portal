@@ -3,12 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('3001'),
   
   // Database
-  DATABASE_URL: z.string(),
+  DATABASE_URL: z.string().default(isTest ? 'postgresql://postgres:postgres@localhost:5432/support_portal_test' : ''),
   
   // Redis
   REDIS_HOST: z.string().default('localhost'),
@@ -16,7 +18,7 @@ const envSchema = z.object({
   REDIS_PASSWORD: z.string().optional(),
   
   // JWT
-  JWT_SECRET: z.string(),
+  JWT_SECRET: z.string().default(isTest ? 'test-jwt-secret-key' : ''),
   JWT_EXPIRES_IN: z.string().default('7d'),
   
   // CORS
@@ -61,7 +63,11 @@ try {
   if (error instanceof z.ZodError) {
     console.error('❌ Invalid environment variables:');
     console.error(JSON.stringify(error.format(), null, 2));
-    process.exit(1);
+    if (!isTest) {
+      process.exit(1);
+    }
+    // In test environment, throw instead of exiting
+    throw new Error('Invalid environment variables in test environment');
   }
   throw error;
 }

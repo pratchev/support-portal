@@ -6,6 +6,9 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     passWithNoTests: true,
+    env: {
+      NODE_ENV: 'test',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -1,11 +1,10 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
-import { Prisma } from '@prisma/client';
 
 class ReportService {
   async getTicketMetrics(startDate?: Date, endDate?: Date) {
     try {
-      const where: Prisma.TicketWhereInput = {};
+      const where: Record<string, unknown> = {};
       
       if (startDate && endDate) {
         where.createdAt = {
@@ -47,7 +46,7 @@ class ReportService {
     }
   }
 
-  private async calculateAvgResponseTime(where: Prisma.TicketWhereInput) {
+  private async calculateAvgResponseTime(where: Record<string, unknown>) {
     const tickets = await prisma.ticket.findMany({
       where,
       include: {
@@ -74,7 +73,7 @@ class ReportService {
       : 0;
   }
 
-  private async getTicketsByPriority(where: Prisma.TicketWhereInput) {
+  private async getTicketsByPriority(where: Record<string, unknown>) {
     const results = await prisma.ticket.groupBy({
       by: ['priority'],
       where,
@@ -87,7 +86,7 @@ class ReportService {
     }));
   }
 
-  private async getTicketsByCategory(where: Prisma.TicketWhereInput) {
+  private async getTicketsByCategory(where: Record<string, unknown>) {
     const results = await prisma.ticket.groupBy({
       by: ['category'],
       where,
@@ -100,7 +99,7 @@ class ReportService {
     }));
   }
 
-  private async getTicketsByStatus(where: Prisma.TicketWhereInput) {
+  private async getTicketsByStatus(where: Record<string, unknown>) {
     const results = await prisma.ticket.groupBy({
       by: ['status'],
       where,
@@ -115,7 +114,7 @@ class ReportService {
 
   async getAgentPerformance(agentId?: string, startDate?: Date, endDate?: Date) {
     try {
-      const where: Prisma.TicketAssignmentWhereInput = {};
+      const where: Record<string, unknown> = {};
       
       if (startDate && endDate) {
         where.assignedAt = {
@@ -179,7 +178,7 @@ class ReportService {
 
   async getCustomerSatisfaction(startDate?: Date, endDate?: Date) {
     try {
-      const where: Prisma.RatingWhereInput = {};
+      const where: Record<string, unknown> = {};
       
       if (startDate && endDate) {
         where.createdAt = {

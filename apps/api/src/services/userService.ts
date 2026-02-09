@@ -1,8 +1,20 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { hashPassword, comparePassword } from '@/utils/helpers';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import { env } from '@/config/env';
+
+type UserRoleValue = 'USER' | 'AGENT' | 'ADMIN';
+type AuthProviderValue = 'LOCAL' | 'MICROSOFT' | 'GOOGLE';
+
+interface UserCreateData {
+  email: string;
+  name: string;
+  role: UserRoleValue;
+  authProvider: AuthProviderValue;
+  password?: string;
+}
 
 interface CreateUserInput {
   email: string;
@@ -30,11 +42,11 @@ class UserService {
         throw new Error('User with this email already exists');
       }
       
-      const userData: any = {
+      const userData: UserCreateData = {
         email: input.email,
         name: input.name,
-        role: input.role as any || 'USER',
-        authProvider: input.authProvider as any || 'LOCAL',
+        role: (input.role as UserRoleValue) || 'USER',
+        authProvider: (input.authProvider as AuthProviderValue) || 'LOCAL',
       };
       
       if (input.password) {
@@ -62,7 +74,7 @@ class UserService {
   }
 
   async getUsers(role?: string, page: number = 1, limit: number = 20) {
-    const where = role ? { role: role as any } : {};
+    const where = role ? { role: role as UserRoleValue } : {};
     
     const [users, total] = await Promise.all([
       prisma.user.findMany({
@@ -162,8 +174,7 @@ class UserService {
     
     const payload = { id: user.id, email: user.email, role: user.role };
     const secret = env.JWT_SECRET;
-    const options: SignOptions = { expiresIn: env.JWT_EXPIRES_IN as any };
-    const token = jwt.sign(payload, secret, options);
+    const token = jwt.sign(payload, secret, { expiresIn: env.JWT_EXPIRES_IN as StringValue });
     
     logger.info(`User authenticated: ${user.email}`);
     

@@ -63,13 +63,13 @@ export const loadTemplate = async (templateName: string): Promise<string> => {
   return fs.readFile(templatePath, 'utf-8');
 };
 
-export const populateTemplate = (template: string, data: Record<string, any>): string => {
+export const populateTemplate = (template: string, data: Record<string, string | number | boolean | null | undefined>): string => {
   let result = template;
   
   // Replace simple {{variable}} placeholders
   Object.entries(data).forEach(([key, value]) => {
     const regex = new RegExp(`{{${key}}}`, 'g');
-    result = result.replace(regex, value ?? '');
+    result = result.replace(regex, String(value ?? ''));
   });
   
   // Handle conditional blocks {{#variable}}...{{/variable}}

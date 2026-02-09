@@ -4,6 +4,9 @@ import { generateTrackingToken } from '@/utils/helpers';
 import { notificationService } from './notificationService';
 import { aiAnalysisQueue } from '@/config/redis';
 
+type TicketPriorityValue = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+type TicketCategoryValue = 'TECHNICAL' | 'BILLING' | 'FEATURE_REQUEST' | 'BUG_REPORT' | 'GENERAL' | 'OTHER';
+
 interface CreateTicketInput {
   subject: string;
   description: string;
@@ -39,8 +42,8 @@ class TicketService {
         data: {
           subject: input.subject,
           description: input.description,
-          priority: input.priority as any || 'MEDIUM',
-          category: input.category as any || 'GENERAL',
+          priority: (input.priority as TicketPriorityValue) || 'MEDIUM',
+          category: (input.category as TicketCategoryValue) || 'GENERAL',
           customerId: input.customerId,
           source: input.source || 'WEB',
           trackingToken: generateTrackingToken(),
@@ -77,7 +80,7 @@ class TicketService {
       limit = 20,
     } = options;
     
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     
     if (customerId) where.customerId = customerId;
     if (status) where.status = status;
@@ -178,7 +181,7 @@ class TicketService {
     try {
       const ticket = await prisma.ticket.update({
         where: { id },
-        data: input,
+        data: input as Record<string, unknown>,
         include: {
           customer: true,
           assignments: {

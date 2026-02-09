@@ -2,7 +2,8 @@ import { OpenAIClient, AzureKeyCredential } from '@azure/openai';
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { env } from '@/config/env';
-import { SentimentScore } from '@prisma/client';
+
+type SentimentScoreValue = 'VERY_NEGATIVE' | 'NEGATIVE' | 'NEUTRAL' | 'POSITIVE' | 'VERY_POSITIVE';
 
 class AIService {
   private client: OpenAIClient | null = null;
@@ -53,7 +54,7 @@ Respond with only one word: VERY_NEGATIVE, NEGATIVE, NEUTRAL, POSITIVE, or VERY_
       if (sentiment) {
         await prisma.ticket.update({
           where: { id: ticketId },
-          data: { sentimentScore: sentiment as SentimentScore },
+          data: { sentimentScore: sentiment as SentimentScoreValue },
         });
         
         logger.info(`Sentiment analyzed for ticket #${ticket.ticketNumber}: ${sentiment}`);

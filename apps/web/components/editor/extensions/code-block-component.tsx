@@ -7,7 +7,6 @@ import { CODE_LANGUAGES } from '@support-portal/shared';
 export default function CodeBlockComponent({
   node,
   updateAttributes,
-  extension,
 }: any) {
   const [copied, setCopied] = useState(false);
 

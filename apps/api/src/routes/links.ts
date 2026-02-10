@@ -30,10 +30,10 @@ router.post('/preview', async (req, res) => {
       siteName: result.ogSiteName,
     };
 
-    res.json(preview);
+    return res.json(preview);
   } catch (error) {
     console.error('Link preview error:', error);
-    res.status(500).json({ error: 'Failed to fetch link preview' });
+    return res.status(500).json({ error: 'Failed to fetch link preview' });
   }
 });
 

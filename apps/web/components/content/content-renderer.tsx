@@ -15,22 +15,22 @@ export default function ContentRenderer({ html, className = '' }: ContentRendere
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (contentRef.current) {
-      // Add click handlers to images for lightbox
-      const images = contentRef.current.querySelectorAll('img');
-      images.forEach((img) => {
-        img.addEventListener('click', () => {
-          setLightboxImage(img.src);
-        });
-        img.style.cursor = 'pointer';
-      });
+    if (!contentRef.current) return;
 
-      return () => {
-        images.forEach((img) => {
-          img.replaceWith(img.cloneNode(true));
-        });
-      };
-    }
+    // Add click handlers to images for lightbox
+    const images = contentRef.current.querySelectorAll('img');
+    images.forEach((img) => {
+      img.addEventListener('click', () => {
+        setLightboxImage(img.src);
+      });
+      img.style.cursor = 'pointer';
+    });
+
+    return () => {
+      images.forEach((img) => {
+        img.replaceWith(img.cloneNode(true));
+      });
+    };
   }, [html]);
 
   // Sanitize HTML before rendering

@@ -36,12 +36,12 @@ export default function ResetPasswordPage() {
           <CardHeader>
             <CardTitle>Check Your Email</CardTitle>
             <CardDescription>
-              We've sent a password reset link to {email}
+              We&apos;ve sent a password reset link to {email}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              If you don't see the email, check your spam folder or try again.
+              If you don&apos;t see the email, check your spam folder or try again.
             </p>
           </CardContent>
           <CardFooter>
@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
         <CardHeader>
           <CardTitle>Reset Password</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we&apos;ll send you a link to reset your password
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>

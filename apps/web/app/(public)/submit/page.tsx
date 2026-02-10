@@ -22,7 +22,7 @@ export default function SubmitTicketPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Submit a Support Ticket</h1>
         <p className="text-muted-foreground">
-          Fill out the form below and we'll get back to you as soon as possible.
+          Fill out the form below and we&apos;ll get back to you as soon as possible.
         </p>
       </div>
       <TicketForm onSubmit={handleSubmit} />

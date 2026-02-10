@@ -9,6 +9,9 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
     },
+    exclude: [
+      'tests/integration/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

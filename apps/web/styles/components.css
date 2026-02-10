@@ -1,0 +1,25 @@
+/* Component-specific styles */
+
+.ticket-list-item {
+  @apply transition-colors hover:bg-accent cursor-pointer;
+}
+
+.rich-text-editor {
+  @apply min-h-[200px] p-4 border rounded-md;
+}
+
+.rich-text-editor .ProseMirror {
+  @apply outline-none;
+}
+
+.rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-muted-foreground;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.stats-card {
+  @apply transition-shadow hover:shadow-lg;
+}

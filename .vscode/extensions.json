@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "prisma.prisma",
+    "ms-azuretools.vscode-docker",
+    "github.copilot",
+    "github.copilot-chat",
+    "ms-playwright.playwright",
+    "mikestead.dotenv",
+    "eamodio.gitlens",
+    "humao.rest-client",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}

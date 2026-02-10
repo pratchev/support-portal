@@ -10,8 +10,6 @@ export default defineConfig({
       NODE_ENV: 'test',
     },
     exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
       'tests/integration/**',
     ],
     coverage: {

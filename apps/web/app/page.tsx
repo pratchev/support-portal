@@ -1,129 +1,113 @@
-'use client';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Ticket, Search, BookOpen, Clock } from 'lucide-react';
 
-import RichTextEditor from '@/components/editor/rich-text-editor';
-import FileUpload from '@/components/upload/file-upload';
-import { useState } from 'react';
-import '@/styles/components.css';
-
-export default function Home() {
-  const [content, setContent] = useState('');
-
-  const handleImageUpload = async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('isInline', 'true');
-
-    try {
-      const response = await fetch('http://localhost:3001/api/attachments/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const data = await response.json();
-      return data.fileUrl;
-    } catch (error) {
-      console.error('Image upload error:', error);
-      alert('Failed to upload image');
-      return '';
-    }
-  };
-
+export default function HomePage() {
   return (
-    <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
-      <h1 style={{ marginBottom: '32px' }}>Support Portal - Rich Content Editor</h1>
-
-      <section style={{ marginBottom: '40px' }}>
-        <h2>Create Ticket</h2>
-        <p style={{ color: '#718096', marginBottom: '16px' }}>
-          Use the rich text editor below to create a ticket with formatted content, code blocks,
-          images, and more.
+    <div className="container py-12">
+      {/* Hero Section */}
+      <div className="max-w-4xl mx-auto text-center mb-16">
+        <h1 className="text-4xl font-bold tracking-tight mb-4">
+          Welcome to Support Portal
+        </h1>
+        <p className="text-xl text-muted-foreground mb-8">
+          Get help quickly and efficiently. Submit tickets, track progress, and access our knowledge base.
         </p>
-
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-            Title
-          </label>
-          <input
-            type="text"
-            placeholder="Enter ticket title..."
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '16px',
-            }}
-          />
+        <div className="flex gap-4 justify-center">
+          <Button asChild size="lg">
+            <Link href="/submit">Submit a Ticket</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/track">Track Your Ticket</Link>
+          </Button>
         </div>
+      </div>
 
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-            Description
-          </label>
-          <RichTextEditor
-            content={content}
-            onChange={setContent}
-            placeholder="Describe your issue... You can paste screenshots, add code blocks, format text, and more!"
-            onImageUpload={handleImageUpload}
-          />
-        </div>
+      {/* Features */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <Card>
+          <CardHeader>
+            <Ticket className="h-8 w-8 mb-2 text-primary" />
+            <CardTitle>Submit Tickets</CardTitle>
+            <CardDescription>
+              Easily submit support tickets and get help from our team
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
-            Attachments
-          </label>
-          <FileUpload maxFiles={20} />
-        </div>
+        <Card>
+          <CardHeader>
+            <Search className="h-8 w-8 mb-2 text-primary" />
+            <CardTitle>Track Progress</CardTitle>
+            <CardDescription>
+              Monitor your tickets in real-time with our tracking system
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-        <button
-          style={{
-            padding: '12px 24px',
-            background: '#3182ce',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: 'pointer',
-          }}
-        >
-          Create Ticket
-        </button>
-      </section>
+        <Card>
+          <CardHeader>
+            <BookOpen className="h-8 w-8 mb-2 text-primary" />
+            <CardTitle>Knowledge Base</CardTitle>
+            <CardDescription>
+              Find answers quickly in our comprehensive knowledge base
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-      <section style={{ marginTop: '60px' }}>
-        <h2>Features Demonstrated</h2>
-        <ul style={{ lineHeight: '2', color: '#4a5568' }}>
-          <li>✅ Rich text formatting (bold, italic, underline, strikethrough, highlight)</li>
-          <li>✅ Headings (H1, H2, H3)</li>
-          <li>✅ Lists (bullet, numbered, task lists)</li>
-          <li>✅ Blockquotes and horizontal rules</li>
-          <li>✅ Code blocks with syntax highlighting (light & dark themes)</li>
-          <li>✅ Inline code formatting</li>
-          <li>✅ Tables</li>
-          <li>✅ Images (paste from clipboard, drag & drop, or upload)</li>
-          <li>✅ Links</li>
-          <li>✅ File attachments with drag & drop</li>
-          <li>✅ File preview cards with thumbnails</li>
-          <li>✅ Download and delete attachments</li>
-        </ul>
-      </section>
+        <Card>
+          <CardHeader>
+            <Clock className="h-8 w-8 mb-2 text-primary" />
+            <CardTitle>24/7 Support</CardTitle>
+            <CardDescription>
+              Get assistance whenever you need it with our round-the-clock support
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
 
-      <section style={{ marginTop: '40px', padding: '20px', background: '#f7fafc', borderRadius: '8px' }}>
-        <h3>Try These Features:</h3>
-        <ol style={{ lineHeight: '2', color: '#4a5568' }}>
-          <li>Take a screenshot and paste it into the editor (Ctrl+V / Cmd+V)</li>
-          <li>Click the image button (📷) to upload an image</li>
-          <li>Click the code block button ({'{}'}) and write some code</li>
-          <li>Drag and drop files into the attachment zone</li>
-          <li>Use keyboard shortcuts: Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline)</li>
-          <li>Insert a table using the table button (📊)</li>
-        </ol>
-      </section>
-    </main>
+      {/* Quick Links */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Links</CardTitle>
+          <CardDescription>Access frequently used resources</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-3 gap-4">
+            <Link
+              href="/kb"
+              className="flex items-center gap-3 p-4 rounded-lg border hover:bg-accent transition-colors"
+            >
+              <BookOpen className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium">Knowledge Base</p>
+                <p className="text-sm text-muted-foreground">Browse articles</p>
+              </div>
+            </Link>
+            <Link
+              href="/login"
+              className="flex items-center gap-3 p-4 rounded-lg border hover:bg-accent transition-colors"
+            >
+              <Ticket className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium">My Dashboard</p>
+                <p className="text-sm text-muted-foreground">View your tickets</p>
+              </div>
+            </Link>
+            <Link
+              href="/submit"
+              className="flex items-center gap-3 p-4 rounded-lg border hover:bg-accent transition-colors"
+            >
+              <Ticket className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-medium">New Ticket</p>
+                <p className="text-sm text-muted-foreground">Get help now</p>
+              </div>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -1,0 +1,68 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev:web",
+      "type": "shell",
+      "command": "npm run dev:web",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:api",
+      "type": "shell",
+      "command": "npm run dev:api",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "dev:all",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "db:migrate",
+      "type": "shell",
+      "command": "npm run db:migrate",
+      "problemMatcher": []
+    },
+    {
+      "label": "db:seed",
+      "type": "shell",
+      "command": "npm run db:seed",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker:up",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "problemMatcher": []
+    },
+    {
+      "label": "docker:down",
+      "type": "shell",
+      "command": "docker compose down",
+      "problemMatcher": []
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "npm test",
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "npm run build",
+      "problemMatcher": []
+    }
+  ]
+}

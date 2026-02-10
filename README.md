@@ -1,262 +1,177 @@
 # Support Portal
 
-Help Desk Ticketing System — AI-enhanced, modern web app with **Rich Content Support**
+[![CI](https://github.com/pratchev/support-portal/workflows/CI/badge.svg)](https://github.com/pratchev/support-portal/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen)](https://nodejs.org)
 
-## 🚀 Features
+**Support Portal** is a modern, AI-enhanced help desk ticketing system built with open-source technologies. It provides a comprehensive solution for managing customer support tickets with features like email integration, real-time updates, AI-powered analysis, and intelligent notification system.
 
-### Rich Content Support
-This project implements comprehensive rich content features for tickets and responses:
+## ✨ Features
 
-#### 📝 Text Formatting
-- **Bold**, *Italic*, <u>Underline</u>, ~~Strikethrough~~, ==Highlight==
-- Headings (H1, H2, H3)
-- Bullet lists, numbered lists, and task lists with checkboxes
-- Blockquotes and horizontal rules
-- Text color and background color customization
-- Subscript and superscript
-
-#### 💻 Code Support
-- **Inline code** with monospace font and background
-- **Code blocks** with syntax highlighting for 15+ languages:
-  - JavaScript, TypeScript, Python, Java, C#, C++
-  - SQL, HTML, CSS, JSON, XML, YAML
-  - Bash, PowerShell, Markdown
-- Copy code button on each code block
-- Line numbers in code blocks
-- Proper theming for both Light and Dark modes
-
-#### 🖼️ Images & Media
-- **Paste screenshots** directly from clipboard (Ctrl+V / Cmd+V)
-- **Drag & drop images** into the editor
-- **Upload button** for selecting images
-- Inline image display with resizing
-- Automatic thumbnail generation
-- Lightbox viewer for full-size images
-- Support for PNG, JPG, JPEG, GIF, WebP, SVG, BMP, TIFF
-
-#### 📎 File Attachments
-- Drag & drop file upload zone
-- Support for 40+ file types:
-  - Documents: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV
-  - Archives: ZIP, RAR, 7Z, TAR, GZ
-  - Code files: JS, TS, PY, JAVA, CS, CPP, HTML, CSS, JSON, XML, etc.
-- File preview cards with thumbnails
-- Download and delete functionality
-- Progress indicators during upload
-- Configurable limits (25MB per file, 20 files max, 100MB total)
-
-#### 🔗 Links
-- Auto-detection and conversion of URLs
-- Link preview cards (optional) with metadata
-- Open in new tab support
-- Custom link dialog
-
-#### 📊 Tables
-- Insert and edit tables
-- Add/remove rows and columns
-- Merge cells support
-- Alternating row colors
-- Responsive design
-
-#### 🎨 Theme Support
-- Full Light theme support
-- Full Dark theme support
-- Automatic theme detection
-- Consistent styling across all components
+- 🎫 **Ticket Management** - Create, track, and resolve support tickets
+- 📧 **Email Integration** - Automatic email ingestion via Microsoft Graph API
+- 🔔 **Smart Notifications** - Configurable email notifications for users and agents
+- 🤖 **AI-Powered** - Sentiment analysis and automatic ticket summarization using Azure OpenAI
+- ⚡ **Real-time Updates** - Live ticket updates using Socket.io
+- 📊 **Analytics & Reports** - Comprehensive dashboards and reporting
+- 🎨 **Modern UI** - Beautiful, responsive interface with light/dark themes
+- 🔐 **Multi-auth** - Google OAuth, Microsoft OAuth, and email/password
+- 📝 **Rich Text Editor** - TipTap editor with emoji support
+- 🔗 **DevOps Integration** - Link tickets to Azure DevOps work items
+- 📚 **Knowledge Base** - Create and manage support articles
+- ⭐ **Ratings & Feedback** - Collect customer satisfaction scores
 
 ## 🏗️ Architecture
 
-This is a **monorepo** using **Turborepo** with the following structure:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Support Portal                          │
+├─────────────────────┬───────────────────┬───────────────────┤
+│   Frontend (Web)    │   Backend (API)   │  Shared Package   │
+│   Next.js 15        │   Express.js      │   Types &         │
+│   React 19          │   TypeScript      │   Constants       │
+│   TypeScript        │   Prisma ORM      │                   │
+│   Tailwind CSS      │   PostgreSQL      │                   │
+│   shadcn/ui         │   Redis/BullMQ    │                   │
+│   Socket.io Client  │   Socket.io       │                   │
+└─────────────────────┴───────────────────┴───────────────────┘
+           │                    │                    │
+           ├────────────────────┴────────────────────┤
+           │         External Services                │
+           │  • Azure OpenAI (GPT-4o)                │
+           │  • Microsoft Graph API                   │
+           │  • Azure DevOps                          │
+           │  • SMTP/Email Services                   │
+           └──────────────────────────────────────────┘
+```
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 22 or higher
+- Docker Desktop
+- VS Code (recommended)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/pratchev/support-portal.git
+   cd support-portal
+   ```
+
+2. **Run the setup script**
+   ```bash
+   ./scripts/setup-dev.sh
+   ```
+
+3. **Start the development servers**
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - API: http://localhost:4000
+   - DB Admin: `npm run db:studio`
+
+## 📦 Project Structure
 
 ```
 support-portal/
 ├── apps/
-│   ├── web/          # Next.js frontend application
-│   │   ├── app/      # Next.js App Router pages
-│   │   ├── components/
-│   │   │   ├── editor/     # Rich text editor
-│   │   │   └── upload/     # File upload components
-│   │   └── styles/         # CSS styles
-│   │
-│   └── api/          # Express.js backend API
-│       ├── src/
-│       │   ├── routes/     # API routes
-│       │   └── index.ts    # Server entry point
-│       └── prisma/         # Database schema
-│
-└── packages/
-    └── shared/       # Shared types and constants
-        └── src/
-            └── types/      # TypeScript types
+│   ├── web/           # Next.js 15 Frontend
+│   └── api/           # Express.js Backend API
+├── packages/
+│   └── shared/        # Shared types and constants
+├── scripts/           # Setup and deployment scripts
+├── .github/           # GitHub Actions workflows
+└── docker-compose.yml # Docker services (PostgreSQL, Redis)
 ```
 
 ## 🛠️ Tech Stack
 
-### Frontend (`apps/web`)
-- **Next.js 14** - React framework with App Router
-- **TipTap** - Rich text editor with extensive extensions
-- **React Dropzone** - File upload with drag & drop
-- **Lowlight + Highlight.js** - Syntax highlighting
-- **DOMPurify** - HTML sanitization
-- **TypeScript** - Type safety
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Next.js 15, React 19, TypeScript, Tailwind CSS, shadcn/ui |
+| **Backend** | Node.js, Express.js, TypeScript, Prisma ORM |
+| **Database** | PostgreSQL 16 |
+| **Cache/Queue** | Redis, BullMQ |
+| **Real-time** | Socket.io |
+| **Authentication** | NextAuth.js (Google, Microsoft, Email) |
+| **AI** | Azure OpenAI Service (GPT-4o) |
+| **Email** | Microsoft Graph API, Nodemailer |
+| **DevOps** | Azure DevOps REST API |
+| **Testing** | Vitest, Playwright |
+| **CI/CD** | GitHub Actions |
+| **Monorepo** | npm workspaces, Turborepo |
 
-### Backend (`apps/api`)
-- **Express.js** - Node.js web framework
-- **Prisma** - Database ORM
-- **PostgreSQL** - Database
-- **Multer** - File upload middleware
-- **Sharp** - Image processing and thumbnails
-- **Open Graph Scraper** - Link preview metadata
+## 📜 Available Scripts
 
-### Shared (`packages/shared`)
-- TypeScript types and constants
-- File validation utilities
-- Shared business logic
-
-## 📦 Installation
-
-### Prerequisites
-- Node.js >= 18.0.0
-- npm >= 9.0.0
-- PostgreSQL database
-
-### Setup
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/pratchev/support-portal.git
-cd support-portal
+# Development
+npm run dev              # Start all services
+npm run dev:web          # Start Next.js frontend only
+npm run dev:api          # Start Express API only
+
+# Database
+npm run db:migrate       # Run database migrations
+npm run db:seed          # Seed database with sample data
+npm run db:studio        # Open Prisma Studio
+
+# Docker
+npm run docker:up        # Start Docker services
+npm run docker:down      # Stop Docker services
+
+# Build & Test
+npm run build            # Build all packages
+npm test                 # Run tests
+npm run lint             # Run linters
+npm run format           # Format code with Prettier
+
+# Complete Setup
+npm run setup            # Install deps, start Docker, migrate DB, seed
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+## 🔐 Environment Variables
 
-3. Set up environment variables:
-```bash
-# For API
-cp apps/api/.env.example apps/api/.env
-# Edit apps/api/.env and set your DATABASE_URL
+Copy `.env.example` to `.env` and configure:
 
-# For Web
-cp apps/web/.env.example apps/web/.env
-# Edit if needed (default is http://localhost:3001)
-```
+- **Database**: PostgreSQL connection string
+- **Redis**: Redis connection string
+- **Auth**: NextAuth secret, OAuth credentials
+- **Azure OpenAI**: Endpoint, API key, deployment name
+- **Microsoft Graph**: Client ID, secret, tenant ID for email
+- **Email**: SMTP or Graph API settings
+- **Azure DevOps**: Organization URL, PAT, project
 
-4. Set up the database:
-```bash
-cd apps/api
-npx prisma generate
-npx prisma migrate dev
-```
+See [`.env.example`](.env.example) for full list.
 
-5. Start the development servers:
-```bash
-# From the root directory
-npm run dev
+## 📖 Documentation
 
-# Or start individually:
-cd apps/api && npm run dev  # API server on port 3001
-cd apps/web && npm run dev  # Web app on port 3000
-```
-
-6. Open your browser and navigate to:
-   - Web App: http://localhost:3000
-   - API: http://localhost:3001
-
-## 🎯 Usage
-
-### Creating Tickets with Rich Content
-
-1. **Text Formatting**: Use the toolbar buttons or keyboard shortcuts
-   - Bold: Ctrl+B / Cmd+B
-   - Italic: Ctrl+I / Cmd+I
-   - Underline: Ctrl+U / Cmd+U
-
-2. **Adding Images**:
-   - Take a screenshot and paste directly (Ctrl+V / Cmd+V)
-   - Drag and drop an image into the editor
-   - Click the 📷 button to select an image
-
-3. **Code Blocks**:
-   - Click the `{}` button to insert a code block
-   - Select the language from the dropdown
-   - Paste or type your code
-
-4. **File Attachments**:
-   - Drag and drop files into the attachment zone
-   - Click to open file picker
-   - View thumbnails and manage attachments
-
-5. **Links**:
-   - Paste a URL and it auto-converts to a link
-   - Click the 🔗 button to add a custom link
-
-6. **Tables**:
-   - Click the 📊 button to insert a table
-   - Use table controls to add/remove rows and columns
-
-## 📚 API Endpoints
-
-### Attachments
-- `POST /api/attachments/upload` - Upload file(s)
-- `POST /api/attachments/upload-image` - Upload image with thumbnail
-- `GET /api/attachments/:id/download` - Download attachment
-- `GET /api/attachments/:id/thumbnail` - Get image thumbnail
-- `DELETE /api/attachments/:id` - Delete attachment
-
-### Links
-- `POST /api/links/preview` - Fetch link preview metadata
-
-## 🔒 Security
-
-- File type validation (whitelist approach)
-- File size limits enforced
-- HTML sanitization with DOMPurify
-- Protected file download endpoints
-- Input validation on all API endpoints
-
-## 📝 Database Schema
-
-### Attachment Model
-```prisma
-model Attachment {
-  id            String    @id @default(uuid())
-  ticketId      String?
-  responseId    String?
-  fileName      String
-  originalName  String
-  filePath      String
-  fileUrl       String
-  thumbnailPath String?
-  thumbnailUrl  String?
-  fileSize      BigInt
-  mimeType      String
-  fileType      String
-  width         Int?
-  height        Int?
-  isInline      Boolean   @default(false)
-  uploadedBy    String?
-  createdAt     DateTime  @default(now())
-}
-```
+- [DEVELOPMENT.md](DEVELOPMENT.md) - Development guide with GitHub Copilot prompts
+- [DEPLOYMENT.md](DEPLOYMENT.md) - Production deployment to Ubuntu
+- [THEMING.md](THEMING.md) - Theme customization guide
 
 ## 🤝 Contributing
 
-This project follows a minimal-change philosophy. Please:
-1. Make the smallest possible changes to achieve your goal
-2. Maintain consistency with existing code style
-3. Test your changes thoroughly
-4. Update documentation as needed
+Contributions are welcome! Please read our contributing guidelines before submitting PRs.
 
 ## 📄 License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- TipTap for the excellent rich text editor
-- Highlight.js for syntax highlighting
-- Sharp for image processing
-- All other open-source contributors
+- Built with ❤️ using open-source technologies
+- Powered by Azure OpenAI for intelligent features
+- UI components from [shadcn/ui](https://ui.shadcn.com)
+
+## 📧 Support
+
+For support, email support@swyftops.com or create an issue in this repository.
+
+---
+
+**Made with ❤️ by SwyftOps**

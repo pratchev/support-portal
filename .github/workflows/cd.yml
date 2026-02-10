@@ -42,9 +42,11 @@ jobs:
             pm2 restart support-portal
 
       - name: Notify deployment
-        if: always()
+        if: always() && env.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@v3
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         with:
           status: ${{ job.status }}
           text: 'Deployment to production ${{ job.status }}'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

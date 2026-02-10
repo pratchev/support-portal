@@ -3,6 +3,7 @@ export * from './types/ticket';
 export * from './types/response';
 export * from './types/notification';
 export * from './types/common';
+export * from './types/attachment';
 export * from './constants/statuses';
 export * from './constants/priorities';
 export * from './constants/categories';

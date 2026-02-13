@@ -2,7 +2,11 @@
 
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { AttachmentUploadResponse, MAX_FILE_SIZE, isFileTypeAllowed } from '@support-portal/shared';
+import {
+  AttachmentUploadResponse,
+  MAX_FILE_SIZE,
+  isFileTypeAllowed,
+} from '@support-portal/shared';
 
 interface FileUploadProps {
   onUpload?: (files: AttachmentUploadResponse[]) => void;
@@ -16,8 +20,9 @@ export default function FileUpload({
   apiEndpoint = 'http://localhost:3001/api/attachments/upload',
 }: FileUploadProps) {
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
-  const [uploadedFiles, setUploadedFiles] = useState<AttachmentUploadResponse[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<
+    AttachmentUploadResponse[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
 
   const onDrop = useCallback(
@@ -73,9 +78,12 @@ export default function FileUpload({
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`${apiEndpoint.replace('/upload', '')}/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `${apiEndpoint.replace('/upload', '')}/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Delete failed');
@@ -89,7 +97,10 @@ export default function FileUpload({
   };
 
   const handleDownload = (file: AttachmentUploadResponse) => {
-    window.open(`${apiEndpoint.replace('/upload', '')}/${file.id}/download`, '_blank');
+    window.open(
+      `${apiEndpoint.replace('/upload', '')}/${file.id}/download`,
+      '_blank'
+    );
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -97,7 +108,7 @@ export default function FileUpload({
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (Math.round((bytes / Math.pow(k, i)) * 100) / 100) + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const getFileIcon = (fileType: string): string => {
@@ -135,14 +146,16 @@ export default function FileUpload({
       </div>
 
       {error && (
-        <div style={{
-          margin: '16px 0',
-          padding: '12px',
-          background: '#fee',
-          border: '1px solid #fcc',
-          borderRadius: '4px',
-          color: '#c33',
-        }}>
+        <div
+          style={{
+            margin: '16px 0',
+            padding: '12px',
+            background: '#fee',
+            border: '1px solid #fcc',
+            borderRadius: '4px',
+            color: '#c33',
+          }}
+        >
           {error}
         </div>
       )}

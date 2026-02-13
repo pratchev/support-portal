@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 interface ImageLightboxProps {
   isOpen: boolean;
@@ -8,7 +8,11 @@ interface ImageLightboxProps {
   onClose: () => void;
 }
 
-export default function ImageLightbox({ isOpen, imageUrl, onClose }: ImageLightboxProps) {
+export default function ImageLightbox({
+  isOpen,
+  imageUrl,
+  onClose,
+}: ImageLightboxProps) {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

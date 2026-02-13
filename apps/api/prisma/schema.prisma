@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -23,6 +22,7 @@ enum AuthProvider {
 }
 
 enum TicketStatus {
+  NEW
   OPEN
   IN_PROGRESS
   WAITING_FOR_CUSTOMER
@@ -56,58 +56,58 @@ enum SentimentScore {
 }
 
 model User {
-  id                        String                      @id @default(uuid())
-  email                     String                      @unique
-  name                      String
-  password                  String?
-  role                      UserRole                    @default(USER)
-  authProvider              AuthProvider                @default(LOCAL)
-  avatar                    String?
-  isActive                  Boolean                     @default(true)
-  lastLogin                 DateTime?
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  
-  ticketsCreated            Ticket[]                    @relation("TicketCreator")
-  assignments               TicketAssignment[]
-  responses                 Response[]
-  reactions                 Reaction[]
-  ratings                   Rating[]
-  auditLogs                 AuditLog[]
-  kbArticles                KBArticle[]
-  notificationPreferences   UserNotificationPreference?
+  id           String       @id @default(uuid())
+  email        String       @unique
+  name         String
+  password     String?
+  role         UserRole     @default(USER)
+  authProvider AuthProvider @default(LOCAL)
+  avatar       String?
+  isActive     Boolean      @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  ticketsCreated          Ticket[]                    @relation("TicketCreator")
+  assignments             TicketAssignment[]
+  responses               Response[]
+  reactions               Reaction[]
+  ratings                 Rating[]
+  auditLogs               AuditLog[]
+  kbArticles              KBArticle[]
+  notificationPreferences UserNotificationPreference?
 
   @@index([email])
   @@index([role])
 }
 
 model Ticket {
-  id                String             @id @default(uuid())
-  ticketNumber      Int                @unique @default(autoincrement())
-  trackingToken     String             @unique @default(uuid())
-  subject           String
-  description       String
-  status            TicketStatus       @default(OPEN)
-  priority          TicketPriority     @default(MEDIUM)
-  category          TicketCategory     @default(GENERAL)
-  source            String             @default("WEB")
-  sentimentScore    SentimentScore?
-  aiSummary         String?
-  isPinned          Boolean            @default(false)
-  resolvedAt        DateTime?
-  closedAt          DateTime?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  
-  customerId        String
-  customer          User               @relation("TicketCreator", fields: [customerId], references: [id])
-  
-  assignments       TicketAssignment[]
-  responses         Response[]
-  attachments       Attachment[]
-  ratings           Rating[]
-  devOpsLinks       DevOpsLink[]
-  auditLogs         AuditLog[]
+  id             String          @id @default(uuid())
+  ticketNumber   Int             @unique @default(autoincrement())
+  trackingToken  String          @unique @default(uuid())
+  subject        String
+  description    String
+  status         TicketStatus    @default(NEW)
+  priority       TicketPriority  @default(MEDIUM)
+  category       TicketCategory  @default(GENERAL)
+  source         String          @default("WEB")
+  sentimentScore SentimentScore?
+  aiSummary      String?
+  isPinned       Boolean         @default(false)
+  resolvedAt     DateTime?
+  closedAt       DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  customerId String
+  customer   User   @relation("TicketCreator", fields: [customerId], references: [id])
+
+  assignments TicketAssignment[]
+  responses   Response[]
+  attachments Attachment[]
+  ratings     Rating[]
+  devOpsLinks DevOpsLink[]
+  auditLogs   AuditLog[]
 
   @@index([ticketNumber])
   @@index([trackingToken])
@@ -120,32 +120,32 @@ model Ticket {
 model TicketAssignment {
   id         String   @id @default(uuid())
   assignedAt DateTime @default(now())
-  
-  ticketId   String
-  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  agentId    String
-  agent      User     @relation(fields: [agentId], references: [id])
-  
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  agentId String
+  agent   User   @relation(fields: [agentId], references: [id])
+
   @@unique([ticketId, agentId])
   @@index([ticketId])
   @@index([agentId])
 }
 
 model Response {
-  id          String     @id @default(uuid())
-  content     String
-  isInternal  Boolean    @default(false)
+  id            String   @id @default(uuid())
+  content       String
+  isInternal    Boolean  @default(false)
   isAiGenerated Boolean  @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  ticketId    String
-  ticket      Ticket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  userId      String
-  user        User       @relation(fields: [userId], references: [id])
-  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
   reactions   Reaction[]
   attachments Attachment[]
 
@@ -155,16 +155,16 @@ model Response {
 }
 
 model Reaction {
-  id         String   @id @default(uuid())
-  emoji      String
-  createdAt  DateTime @default(now())
-  
+  id        String   @id @default(uuid())
+  emoji     String
+  createdAt DateTime @default(now())
+
   responseId String
   response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
-  
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
   @@unique([responseId, userId])
   @@index([responseId])
 }
@@ -174,13 +174,13 @@ model Rating {
   score     Int
   feedback  String?
   createdAt DateTime @default(now())
-  
-  ticketId  String   @unique
-  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  
+
+  ticketId String @unique
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
   @@index([score])
 }
 
@@ -191,10 +191,10 @@ model Attachment {
   size       Int
   url        String
   uploadedAt DateTime @default(now())
-  
-  ticketId   String?
-  ticket     Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  
+
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
   responseId String?
   response   Response? @relation(fields: [responseId], references: [id], onDelete: Cascade)
 
@@ -212,9 +212,9 @@ model KBArticle {
   viewCount   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
   @@index([category])
   @@index([isPublished])
@@ -226,9 +226,9 @@ model DevOpsLink {
   workItemUrl String
   platform    String
   createdAt   DateTime @default(now())
-  
-  ticketId    String
-  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 
   @@index([ticketId])
 }
@@ -242,12 +242,12 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
-  
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  
-  ticketId   String?
-  ticket     Ticket?  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([entityType, entityId])
@@ -255,34 +255,34 @@ model AuditLog {
 }
 
 model SLAPolicy {
-  id                    String @id @default(uuid())
-  name                  String
-  priority              TicketPriority
-  firstResponseMinutes  Int
-  resolutionHours       Int
-  isActive              Boolean @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   String         @id @default(uuid())
+  name                 String
+  priority             TicketPriority
+  firstResponseMinutes Int
+  resolutionHours      Int
+  isActive             Boolean        @default(true)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   @@index([priority])
 }
 
 model NotificationSettings {
-  id                   String  @id @default(uuid())
-  emailEnabled         Boolean @default(true)
-  smtpHost             String?
-  smtpPort             Int?
-  smtpSecure           Boolean @default(true)
-  smtpUser             String?
-  smtpPassword         String?
-  useGraphApi          Boolean @default(false)
-  graphClientId        String?
-  graphClientSecret    String?
-  graphTenantId        String?
-  fromEmail            String?
-  fromName             String  @default("Support Portal")
-  replyToEmail         String?
-  updatedAt            DateTime @updatedAt
+  id                String   @id @default(uuid())
+  emailEnabled      Boolean  @default(true)
+  smtpHost          String?
+  smtpPort          Int?
+  smtpSecure        Boolean  @default(true)
+  smtpUser          String?
+  smtpPassword      String?
+  useGraphApi       Boolean  @default(false)
+  graphClientId     String?
+  graphClientSecret String?
+  graphTenantId     String?
+  fromEmail         String?
+  fromName          String   @default("Support Portal")
+  replyToEmail      String?
+  updatedAt         DateTime @updatedAt
 
   @@map("notification_settings")
 }
@@ -297,9 +297,9 @@ model UserNotificationPreference {
   dailyDigest           Boolean  @default(false)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
-  
-  userId                String   @unique
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_notification_preferences")
 }

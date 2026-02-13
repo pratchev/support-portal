@@ -26,8 +26,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          DATABASE_URL: postgresql://placeholder:placeholder@localhost:5432/placeholder
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1

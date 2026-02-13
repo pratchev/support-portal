@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '.prisma/client';
 import { hashPassword } from '../src/utils/helpers';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+});
 
 async function main() {
   console.log('🌱 Seeding database...');
@@ -143,7 +145,8 @@ async function main() {
   const article1 = await prisma.kBArticle.create({
     data: {
       title: 'How to Reset Your Password',
-      content: 'To reset your password, click on "Forgot Password" on the login page...',
+      content:
+        'To reset your password, click on "Forgot Password" on the login page...',
       category: 'Account Management',
       tags: ['password', 'account', 'security'],
       isPublished: true,
@@ -155,7 +158,7 @@ async function main() {
   const article2 = await prisma.kBArticle.create({
     data: {
       title: 'Getting Started with Support Portal',
-      content: 'Welcome to Support Portal! Here\'s how to get started...',
+      content: "Welcome to Support Portal! Here's how to get started...",
       category: 'Getting Started',
       tags: ['guide', 'tutorial', 'beginner'],
       isPublished: true,
@@ -191,7 +194,8 @@ async function main() {
     data: {
       ticketId: ticket1.id,
       userId: agent1.id,
-      content: 'Hello! I can help you reset your password. I\'ll send you a password reset link.',
+      content:
+        "Hello! I can help you reset your password. I'll send you a password reset link.",
       isInternal: false,
     },
   });

@@ -1,9 +1,7 @@
-import { PrismaClient } from '.prisma/client';
+import { PrismaClient } from '../node_modules/.prisma/client/client';
 import { hashPassword } from '../src/utils/helpers';
 
-const prisma = new PrismaClient({
-  datasourceUrl: process.env.DATABASE_URL,
-});
+const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');

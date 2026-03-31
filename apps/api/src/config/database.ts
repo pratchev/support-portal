@@ -1,12 +1,16 @@
-import { PrismaClient } from '.prisma/client';
+import { PrismaClient } from '../../node_modules/.prisma/client/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { logger } from '@/utils/logger';
+
+const connectionString = process.env.DATABASE_URL || '';
+const adapter = new PrismaPg(connectionString);
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
+    adapter,
     log:
       process.env.NODE_ENV === 'development'
         ? ['query', 'error', 'warn']

@@ -23,11 +23,14 @@ export const authOptions: AuthOptions = {
         }
 
         try {
-          const user = await apiClient.post<User>('/auth/login', {
-            email: credentials.email,
-            password: credentials.password,
-          });
-          return user;
+          const response = await apiClient.post<{ token: string; user: User }>(
+            '/auth/login',
+            {
+              email: credentials.email,
+              password: credentials.password,
+            }
+          );
+          return response.user;
         } catch (error) {
           return null;
         }

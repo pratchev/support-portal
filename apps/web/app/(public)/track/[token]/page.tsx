@@ -17,7 +17,7 @@ export default function TrackTicketPage() {
     const fetchTicket = async () => {
       try {
         setIsLoading(true);
-        const data = await apiClient.get(`/tickets/track/${token}`);
+        const data = await apiClient.get(`/api/tickets/track/${token}`);
         setTicket(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load ticket');
@@ -36,7 +36,9 @@ export default function TrackTicketPage() {
       <div className="container py-12">
         <Card>
           <CardContent className="py-12">
-            <p className="text-center text-muted-foreground">Loading ticket...</p>
+            <p className="text-center text-muted-foreground">
+              Loading ticket...
+            </p>
           </CardContent>
         </Card>
       </div>

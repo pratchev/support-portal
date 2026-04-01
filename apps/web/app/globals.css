@@ -10,7 +10,28 @@
   * {
     @apply border-border;
   }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'kern', 'liga', 'calt';
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight font-semibold;
+    letter-spacing: -0.015em;
+  }
+  h1 {
+    @apply text-3xl sm:text-4xl leading-tight;
+  }
+  h2 {
+    @apply text-2xl sm:text-3xl leading-snug;
   }
 }

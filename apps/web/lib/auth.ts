@@ -17,7 +17,9 @@ export const authOptions: AuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(
+        credentials
+      ): Promise<(User & { accessToken: string }) | null> {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -30,7 +32,7 @@ export const authOptions: AuthOptions = {
               password: credentials.password,
             }
           );
-          return response.user;
+          return { ...response.user, accessToken: response.token };
         } catch (error) {
           return null;
         }
@@ -47,6 +49,7 @@ export const authOptions: AuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.accessToken = user.accessToken;
       }
       return token;
     },
@@ -55,6 +58,7 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id;
         session.user.role = token.role;
       }
+      session.accessToken = token.accessToken;
       return session;
     },
   },

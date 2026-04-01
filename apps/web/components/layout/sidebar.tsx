@@ -10,6 +10,7 @@ import {
   BarChart,
   Settings,
   BookOpen,
+  UserCircle,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,15 +23,17 @@ export function Sidebar({ role = 'end_user' }: SidebarProps) {
   const navigation = getNavigationForRole(role);
 
   return (
-    <aside className="w-64 border-r bg-background h-[calc(100vh-4rem)] sticky top-16">
-      <nav className="flex flex-col gap-2 p-4">
+    <aside className="w-64 border-r bg-background h-[calc(100vh-3.5rem)] sticky top-14">
+      <nav className="flex flex-col gap-1 p-4">
         {navigation.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent',
-              pathname === item.href ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+              'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150',
+              pathname === item.href
+                ? 'bg-primary/10 text-primary font-medium'
+                : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
             )}
           >
             <item.icon className="h-4 w-4" />
@@ -43,21 +46,23 @@ export function Sidebar({ role = 'end_user' }: SidebarProps) {
 }
 
 function getNavigationForRole(role: string) {
-  const commonLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: Home },
-    { href: '/dashboard/tickets', label: 'My Tickets', icon: Ticket },
-    { href: '/kb', label: 'Knowledge Base', icon: BookOpen },
-  ];
+  const r = role?.toUpperCase();
 
-  if (role === 'agent' || role === 'manager') {
+  if (
+    r === 'AGENT' ||
+    r === 'MANAGER' ||
+    role === 'agent' ||
+    role === 'manager'
+  ) {
     return [
       { href: '/agent', label: 'Agent Dashboard', icon: Home },
       { href: '/agent/tickets', label: 'All Tickets', icon: Ticket },
       { href: '/kb', label: 'Knowledge Base', icon: BookOpen },
+      { href: '/dashboard/profile', label: 'Profile', icon: UserCircle },
     ];
   }
 
-  if (role === 'admin') {
+  if (r === 'ADMIN' || role === 'admin') {
     return [
       { href: '/admin', label: 'Admin Dashboard', icon: Home },
       { href: '/admin/users', label: 'Users', icon: Users },
@@ -67,5 +72,10 @@ function getNavigationForRole(role: string) {
     ];
   }
 
-  return commonLinks;
+  return [
+    { href: '/dashboard', label: 'Dashboard', icon: Home },
+    { href: '/dashboard/tickets', label: 'My Tickets', icon: Ticket },
+    { href: '/kb', label: 'Knowledge Base', icon: BookOpen },
+    { href: '/dashboard/profile', label: 'Profile', icon: UserCircle },
+  ];
 }

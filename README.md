@@ -139,20 +139,36 @@
 
 - JWT-based API authentication with bcrypt password hashing
 - NextAuth.js integration on the frontend (CredentialsProvider)
+- API JWT token stored in NextAuth session for authenticated frontend API calls
 - Role-based access control: **User**, **Agent**, **Admin**
+- Role-aware sidebar navigation (different links per role)
 - User CRUD (admin-only)
 - Agent listing
-- User profile management
+- User profile page with avatar and name editing
 - Schema supports Microsoft and Google OAuth providers (not yet fully wired)
+
+### Frontend Data Integration
+
+- `useApi()` hook — authenticated fetch wrapper that reads JWT from NextAuth session
+- `useTickets()` hook — paginated ticket fetching with built-in filter state (status, priority, category, search)
+- All dashboards (user, agent, admin) wired to real API data
+- Admin reports page wired to real `/api/reports/metrics`, `/api/reports/agent-performance` endpoints
+- Knowledge base page wired to `/api/kb` and `/api/kb/search` endpoints
+- Ticket list pages include interactive filter dropdowns (status, priority, category) and search
 
 ### Theming & UI
 
-- Light and dark themes with CSS custom properties
+- Apple-inspired clean, modern design with generous whitespace and rounded corners
+- SF Pro-inspired system font stack (SF Pro, Inter, system-ui)
+- Light and dark themes with refined CSS custom properties
+- Semantic status colors: blue (open), amber (in progress), emerald (resolved), slate (closed)
+- Semantic priority colors: slate (low), blue (medium), orange (high), red (urgent)
 - Theme switching via next-themes with persistence
 - Tailwind CSS utility-first styling
 - Radix UI accessible primitives (dialog, dropdown, select, switch, tabs, tooltip, avatar)
 - Responsive design for desktop and mobile
 - Lucide React icon library
+- Smooth transitions and hover effects on interactive elements
 
 ### Link Previews
 
@@ -408,7 +424,7 @@ support-portal/
 │       │   ├── lightbox/           # Image viewer
 │       │   ├── upload/             # File upload dropzone
 │       │   └── content/            # Content display & rendering
-│       ├── hooks/                  # use-auth, use-tickets, use-theme
+│       ├── hooks/                  # use-api, use-auth, use-tickets, use-theme
 │       ├── lib/                    # API client, auth config, utils, constants
 │       ├── providers/              # Session & theme providers
 │       └── styles/                 # Global CSS, theme definitions

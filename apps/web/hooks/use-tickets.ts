@@ -1,73 +1,112 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { useState, useEffect, useCallback } from 'react';
+import { useApi } from './use-api';
 
 interface Ticket {
-  id: number;
-  title: string;
+  id: string;
+  ticketNumber: number;
+  subject: string;
   description: string;
   status: string;
   priority: string;
+  category: string;
+  isPinned: boolean;
   createdAt: string;
   updatedAt: string;
+  customer?: { id: string; name: string; email: string; avatar: string | null };
+  assignments?: Array<{
+    agent: { id: string; name: string; avatar: string | null };
+  }>;
+  _count?: { responses: number };
 }
 
-export function useTickets() {
+interface PaginatedResponse {
+  data: Ticket[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+interface TicketFilters {
+  status?: string;
+  priority?: string;
+  category?: string;
+  search?: string;
+}
+
+export function useTickets(initialFilters?: TicketFilters) {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [pagination, setPagination] = useState<
+    PaginatedResponse['pagination'] | null
+  >(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<TicketFilters>(initialFilters || {});
+  const { get, post, patch, del, isAuthenticated } = useApi();
 
-  const fetchTickets = async () => {
-    try {
-      setIsLoading(true);
-      const data = await apiClient.get<Ticket[]>('/tickets');
-      setTickets(data);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch tickets');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const fetchTickets = useCallback(
+    async (page = 1) => {
+      if (!isAuthenticated) return;
+      try {
+        setIsLoading(true);
+        const params: Record<string, string> = { page: String(page) };
+        if (filters.status) params.status = filters.status;
+        if (filters.priority) params.priority = filters.priority;
+        if (filters.category) params.category = filters.category;
+        if (filters.search) params.search = filters.search;
+
+        const result = await get<PaginatedResponse>('/api/tickets', params);
+        setTickets(result.data);
+        setPagination(result.pagination);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch tickets'
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [get, isAuthenticated, filters]
+  );
 
   useEffect(() => {
     fetchTickets();
-  }, []);
+  }, [fetchTickets]);
 
-  const createTicket = async (data: Partial<Ticket>) => {
-    try {
-      const newTicket = await apiClient.post<Ticket>('/tickets', data);
-      setTickets((prev) => [newTicket, ...prev]);
-      return newTicket;
-    } catch (err) {
-      throw err;
-    }
+  const createTicket = async (data: {
+    subject: string;
+    description: string;
+    priority?: string;
+    category?: string;
+  }) => {
+    const newTicket = await post<Ticket>('/api/tickets', data);
+    setTickets((prev) => [newTicket, ...prev]);
+    return newTicket;
   };
 
-  const updateTicket = async (id: number, data: Partial<Ticket>) => {
-    try {
-      const updated = await apiClient.patch<Ticket>(`/tickets/${id}`, data);
-      setTickets((prev) => prev.map((t) => (t.id === id ? updated : t)));
-      return updated;
-    } catch (err) {
-      throw err;
-    }
+  const updateTicket = async (id: string, data: Partial<Ticket>) => {
+    const updated = await patch<Ticket>(`/api/tickets/${id}`, data);
+    setTickets((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    return updated;
   };
 
-  const deleteTicket = async (id: number) => {
-    try {
-      await apiClient.delete(`/tickets/${id}`);
-      setTickets((prev) => prev.filter((t) => t.id !== id));
-    } catch (err) {
-      throw err;
-    }
+  const deleteTicket = async (id: string) => {
+    await del(`/api/tickets/${id}`);
+    setTickets((prev) => prev.filter((t) => t.id !== id));
   };
 
   return {
     tickets,
+    pagination,
     isLoading,
     error,
+    filters,
+    setFilters,
     fetchTickets,
     createTicket,
     updateTicket,

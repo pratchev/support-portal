@@ -1,11 +1,11 @@
 /* Component-specific styles */
 
 .ticket-list-item {
-  @apply transition-colors hover:bg-accent cursor-pointer;
+  @apply transition-all duration-150 hover:bg-accent/50 cursor-pointer;
 }
 
 .rich-text-editor {
-  @apply min-h-[200px] p-4 border rounded-md;
+  @apply min-h-[200px] p-4 border rounded-xl;
 }
 
 .rich-text-editor .ProseMirror {
@@ -21,5 +21,30 @@
 }
 
 .stats-card {
-  @apply transition-shadow hover:shadow-lg;
+  @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 rounded-2xl border-0 shadow-sm bg-card;
+}
+
+/* Status dot indicator */
+.status-dot {
+  @apply inline-block w-2 h-2 rounded-full mr-2;
+}
+.status-dot-open {
+  background-color: hsl(var(--status-open));
+}
+.status-dot-in-progress {
+  background-color: hsl(var(--status-in-progress));
+}
+.status-dot-waiting {
+  background-color: hsl(var(--status-waiting));
+}
+.status-dot-resolved {
+  background-color: hsl(var(--status-resolved));
+}
+.status-dot-closed {
+  background-color: hsl(var(--status-closed));
+}
+
+/* Focus ring */
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
 }

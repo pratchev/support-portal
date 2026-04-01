@@ -14,10 +14,12 @@ import {
 } from '@/components/ui/table';
 
 interface Ticket {
-  id: number;
-  title: string;
+  id: string;
+  ticketNumber?: number;
+  subject: string;
   status: string;
   priority: string;
+  isPinned?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -52,13 +54,20 @@ export function TicketList({ tickets }: TicketListProps) {
           {tickets.map((ticket) => (
             <TableRow key={ticket.id} className="ticket-list-item">
               <TableCell>
-                <Link href={`/dashboard/tickets/${ticket.id}`} className="font-mono text-xs hover:underline">
-                  #{ticket.id}
+                <Link
+                  href={`/dashboard/tickets/${ticket.id}`}
+                  className="font-mono text-xs hover:underline"
+                >
+                  #{ticket.ticketNumber || ticket.id}
                 </Link>
               </TableCell>
               <TableCell>
-                <Link href={`/dashboard/tickets/${ticket.id}`} className="hover:underline">
-                  {ticket.title}
+                <Link
+                  href={`/dashboard/tickets/${ticket.id}`}
+                  className="hover:underline"
+                >
+                  {ticket.isPinned && <span className="mr-1">📌</span>}
+                  {ticket.subject}
                 </Link>
               </TableCell>
               <TableCell>

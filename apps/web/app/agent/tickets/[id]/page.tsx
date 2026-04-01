@@ -5,20 +5,28 @@ import { useParams } from 'next/navigation';
 import { TicketDetail } from '@/components/tickets/ticket-detail';
 import { RichTextEditor } from '@/components/editor/rich-text-editor';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { apiClient } from '@/lib/api-client';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { useApi } from '@/hooks/use-api';
 
 export default function AgentTicketPage() {
   const params = useParams();
   const ticketId = params.id as string;
+  const { get, post, isAuthenticated } = useApi();
   const [ticket, setTicket] = useState<any>(null);
   const [response, setResponse] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const fetchTicket = async () => {
       try {
-        const data = await apiClient.get(`/tickets/${ticketId}`);
+        const data = await get(`/api/tickets/${ticketId}`);
         setTicket(data);
       } catch (err) {
         console.error('Failed to load ticket:', err);
@@ -28,19 +36,19 @@ export default function AgentTicketPage() {
     if (ticketId) {
       fetchTicket();
     }
-  }, [ticketId]);
+  }, [ticketId, get, isAuthenticated]);
 
   const handleSubmitResponse = async () => {
     if (!response.trim()) return;
 
     setIsSubmitting(true);
     try {
-      await apiClient.post(`/tickets/${ticketId}/responses`, {
+      await post(`/api/tickets/${ticketId}/responses`, {
         message: response,
       });
       setResponse('');
       // Refresh ticket
-      const data = await apiClient.get(`/tickets/${ticketId}`);
+      const data = await get(`/api/tickets/${ticketId}`);
       setTicket(data);
     } catch (err) {
       console.error('Failed to submit response:', err);
@@ -74,7 +82,10 @@ export default function AgentTicketPage() {
             />
           </CardContent>
           <CardFooter>
-            <Button onClick={handleSubmitResponse} disabled={isSubmitting || !response.trim()}>
+            <Button
+              onClick={handleSubmitResponse}
+              disabled={isSubmitting || !response.trim()}
+            >
               {isSubmitting ? 'Sending...' : 'Send Response'}
             </Button>
           </CardFooter>

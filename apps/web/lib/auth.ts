@@ -24,7 +24,7 @@ export const authOptions: AuthOptions = {
 
         try {
           const response = await apiClient.post<{ token: string; user: User }>(
-            '/auth/login',
+            '/api/auth/login',
             {
               email: credentials.email,
               password: credentials.password,

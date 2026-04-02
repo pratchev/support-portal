@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { TicketDetail } from '@/components/tickets/ticket-detail';
 import { useApi } from '@/hooks/use-api';
+import { ArrowLeft } from 'lucide-react';
 
 export default function DashboardTicketDetailPage() {
   const params = useParams();
@@ -37,7 +39,14 @@ export default function DashboardTicketDetailPage() {
 
   return (
     <div className="container max-w-4xl py-8">
-      <TicketDetail ticket={ticket} />
+      <Link
+        href="/dashboard/tickets"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Tickets
+      </Link>
+      <TicketDetail ticket={ticket} onUpdate={setTicket} />
     </div>
   );
 }

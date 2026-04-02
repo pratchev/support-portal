@@ -2,15 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { StatsCard } from '@/components/dashboard/stats-card';
-import { TicketChart } from '@/components/dashboard/ticket-chart';
+import {
+  TicketChart,
+  getStatusChartColor,
+} from '@/components/dashboard/ticket-chart';
 import { RecentTickets } from '@/components/dashboard/recent-tickets';
-import { Ticket, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Ticket,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Sparkles,
+} from 'lucide-react';
 import { useApi } from '@/hooks/use-api';
+import { DateRangeFilter } from '@/components/dashboard/date-range-filter';
 
 interface TicketItem {
   id: string;
   subject: string;
   status: string;
+  priority: string;
   updatedAt: string;
 }
 
@@ -23,6 +34,7 @@ export default function DashboardPage() {
   const { get, isAuthenticated } = useApi();
   const [stats, setStats] = useState({
     total: 0,
+    newCount: 0,
     open: 0,
     inProgress: 0,
     resolved: 0,
@@ -32,69 +44,109 @@ export default function DashboardPage() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const loadData = async (startDate?: string, endDate?: string) => {
     if (!isAuthenticated) return;
-    async function load() {
-      try {
-        const [allRes, openRes, progressRes, resolvedRes] = await Promise.all([
-          get<PaginatedTickets>('/api/tickets', { limit: '1' }),
-          get<PaginatedTickets>('/api/tickets', { status: 'OPEN', limit: '1' }),
+    setIsLoading(true);
+    try {
+      const dateParams: Record<string, string> = {};
+      if (startDate && endDate) {
+        dateParams.startDate = new Date(startDate).toISOString();
+        dateParams.endDate = new Date(endDate + 'T23:59:59').toISOString();
+      }
+
+      const [allRes, newRes, openRes, progressRes, resolvedRes] =
+        await Promise.all([
+          get<PaginatedTickets>('/api/tickets', { limit: '1', ...dateParams }),
+          get<PaginatedTickets>('/api/tickets', {
+            status: 'NEW',
+            limit: '1',
+            ...dateParams,
+          }),
+          get<PaginatedTickets>('/api/tickets', {
+            status: 'OPEN',
+            limit: '1',
+            ...dateParams,
+          }),
           get<PaginatedTickets>('/api/tickets', {
             status: 'IN_PROGRESS',
             limit: '1',
+            ...dateParams,
           }),
           get<PaginatedTickets>('/api/tickets', {
             status: 'RESOLVED',
             limit: '1',
+            ...dateParams,
           }),
         ]);
-        setStats({
-          total: allRes.pagination.total,
-          open: openRes.pagination.total,
-          inProgress: progressRes.pagination.total,
-          resolved: resolvedRes.pagination.total,
-        });
+      setStats({
+        total: allRes.pagination.total,
+        newCount: newRes.pagination.total,
+        open: openRes.pagination.total,
+        inProgress: progressRes.pagination.total,
+        resolved: resolvedRes.pagination.total,
+      });
 
-        const recent = await get<PaginatedTickets>('/api/tickets', {
-          limit: '5',
-        });
-        setRecentTickets(
-          recent.data.map((t) => ({
-            id: t.id,
-            title: t.subject,
-            status: t.status,
-            updatedAt: t.updatedAt,
-          }))
-        );
-      } catch {
-        // silent - empty state shown
-      } finally {
-        setIsLoading(false);
-      }
+      const recent = await get<PaginatedTickets>('/api/tickets', {
+        limit: '5',
+        ...dateParams,
+      });
+      setRecentTickets(
+        recent.data.map((t) => ({
+          id: t.id,
+          title: t.subject,
+          status: t.status,
+          updatedAt: t.updatedAt,
+        }))
+      );
+    } catch {
+      // silent - empty state shown
+    } finally {
+      setIsLoading(false);
     }
-    load();
-  }, [get, isAuthenticated]);
+  };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  const handleDateRangeChange = (
+    startDate: string | undefined,
+    endDate: string | undefined
+  ) => {
+    loadData(startDate, endDate);
+  };
 
   const chartData = [
-    { name: 'Open', open: stats.open, closed: 0 },
-    { name: 'In Progress', open: stats.inProgress, closed: 0 },
-    { name: 'Resolved', open: 0, closed: stats.resolved },
+    { name: 'New', count: stats.newCount, fill: getStatusChartColor('NEW') },
+    { name: 'Open', count: stats.open, fill: getStatusChartColor('OPEN') },
+    {
+      name: 'In Progress',
+      count: stats.inProgress,
+      fill: getStatusChartColor('IN_PROGRESS'),
+    },
+    {
+      name: 'Resolved',
+      count: stats.resolved,
+      fill: getStatusChartColor('RESOLVED'),
+    },
   ];
 
   return (
     <div className="container py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-4">
           Overview of your support tickets
         </p>
+        <DateRangeFilter onRangeChange={handleDateRangeChange} />
       </div>
 
       {isLoading ? (
         <p className="text-muted-foreground">Loading dashboard...</p>
       ) : (
         <>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 mb-8">
             <StatsCard
               title="Total Tickets"
               value={stats.total}
@@ -102,7 +154,13 @@ export default function DashboardPage() {
               description="All time"
             />
             <StatsCard
-              title="Open Tickets"
+              title="New"
+              value={stats.newCount}
+              icon={Sparkles}
+              description="Awaiting triage"
+            />
+            <StatsCard
+              title="Open"
               value={stats.open}
               icon={AlertCircle}
               description="Awaiting response"

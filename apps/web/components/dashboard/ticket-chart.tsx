@@ -9,15 +9,31 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
+  Cell,
 } from 'recharts';
 
+export interface TicketChartData {
+  name: string;
+  count: number;
+  fill: string;
+}
+
+const STATUS_CHART_COLORS: Record<string, string> = {
+  NEW: 'hsl(217, 91%, 60%)',
+  OPEN: 'hsl(0, 72%, 51%)',
+  IN_PROGRESS: 'hsl(50, 98%, 47%)',
+  WAITING_FOR_CUSTOMER: 'hsl(271, 91%, 65%)',
+  WAITING_FOR_INTERNAL: 'hsl(30, 41%, 44%)',
+  RESOLVED: 'hsl(142, 71%, 45%)',
+  CLOSED: 'hsl(220, 9%, 46%)',
+};
+
+export function getStatusChartColor(status: string): string {
+  return STATUS_CHART_COLORS[status] || 'hsl(220, 9%, 46%)';
+}
+
 interface TicketChartProps {
-  data: Array<{
-    name: string;
-    open: number;
-    closed: number;
-  }>;
+  data: TicketChartData[];
 }
 
 export function TicketChart({ data }: TicketChartProps) {
@@ -51,19 +67,11 @@ export function TicketChart({ data }: TicketChartProps) {
                 fontSize: '0.875rem',
               }}
             />
-            <Legend iconType="circle" iconSize={8} />
-            <Bar
-              dataKey="open"
-              fill="hsl(213, 94%, 54%)"
-              name="Open"
-              radius={[6, 6, 0, 0]}
-            />
-            <Bar
-              dataKey="closed"
-              fill="hsl(160, 84%, 39%)"
-              name="Resolved"
-              radius={[6, 6, 0, 0]}
-            />
+            <Bar dataKey="count" name="Tickets" radius={[6, 6, 0, 0]}>
+              {data.map((entry, index) => (
+                <Cell key={index} fill={entry.fill} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

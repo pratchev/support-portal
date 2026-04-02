@@ -28,11 +28,13 @@
   --ring: 211 100% 55%;
 
   /* Status colors */
-  --status-open: 213 94% 62%;
-  --status-in-progress: 38 92% 56%;
-  --status-waiting: 262 83% 68%;
-  --status-resolved: 160 84% 45%;
-  --status-closed: 215 14% 55%;
+  --status-new: 217 91% 68%;
+  --status-open: 0 72% 62%;
+  --status-in-progress: 50 98% 52%;
+  --status-waiting: 271 91% 72%;
+  --status-waiting-internal: 30 41% 54%;
+  --status-resolved: 142 71% 52%;
+  --status-closed: 220 9% 56%;
 
   /* Priority colors */
   --priority-low: 215 14% 55%;

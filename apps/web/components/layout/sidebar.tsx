@@ -65,6 +65,7 @@ function getNavigationForRole(role: string) {
   if (r === 'ADMIN' || role === 'admin') {
     return [
       { href: '/admin', label: 'Admin Dashboard', icon: Home },
+      { href: '/agent/tickets', label: 'All Tickets', icon: Ticket },
       { href: '/admin/users', label: 'Users', icon: Users },
       { href: '/admin/reports', label: 'Reports', icon: BarChart },
       { href: '/admin/settings', label: 'Settings', icon: Settings },

@@ -30,7 +30,7 @@ export default function DashboardTicketsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/submit">
+          <Link href="/dashboard/tickets/new">
             <Plus className="mr-2 h-4 w-4" />
             New Ticket
           </Link>
@@ -61,6 +61,7 @@ export default function DashboardTicketsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="NEW">New</SelectItem>
             <SelectItem value="OPEN">Open</SelectItem>
             <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
             <SelectItem value="RESOLVED">Resolved</SelectItem>

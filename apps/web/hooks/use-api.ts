@@ -2,7 +2,6 @@
 
 import { useSession } from 'next-auth/react';
 import { useCallback } from 'react';
-import { API_BASE_URL } from '@/lib/constants';
 
 export function useApi() {
   const { data: session } = useSession();
@@ -19,7 +18,8 @@ export function useApi() {
     ): Promise<T> => {
       const { params, ...fetchConfig } = config;
 
-      let url = `${API_BASE_URL}${endpoint}`;
+      // Use same-origin requests through the Next.js proxy
+      let url = endpoint;
       if (params) {
         const qs = new URLSearchParams(
           Object.fromEntries(Object.entries(params).filter(([, v]) => v))

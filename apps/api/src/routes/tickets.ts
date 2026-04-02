@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { authenticate, requireRole, optionalAuth, AuthRequest } from '@/middleware/auth';
+import {
+  authenticate,
+  requireRole,
+  optionalAuth,
+  AuthRequest,
+} from '@/middleware/auth';
 import { ticketService } from '@/services/ticketService';
 import { validateBody } from '@/middleware/validation';
 import { z } from 'zod';
@@ -11,15 +16,43 @@ const createTicketSchema = z.object({
   subject: z.string().min(3).max(200),
   description: z.string().min(10).max(5000),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  category: z.enum(['TECHNICAL', 'BILLING', 'FEATURE_REQUEST', 'BUG_REPORT', 'GENERAL', 'OTHER']).optional(),
+  category: z
+    .enum([
+      'TECHNICAL',
+      'BILLING',
+      'FEATURE_REQUEST',
+      'BUG_REPORT',
+      'GENERAL',
+      'OTHER',
+    ])
+    .optional(),
 });
 
 const updateTicketSchema = z.object({
   subject: z.string().min(3).max(200).optional(),
   description: z.string().min(10).max(5000).optional(),
-  status: z.enum(['OPEN', 'IN_PROGRESS', 'WAITING_FOR_CUSTOMER', 'WAITING_FOR_INTERNAL', 'RESOLVED', 'CLOSED']).optional(),
+  status: z
+    .enum([
+      'NEW',
+      'OPEN',
+      'IN_PROGRESS',
+      'WAITING_FOR_CUSTOMER',
+      'WAITING_FOR_INTERNAL',
+      'RESOLVED',
+      'CLOSED',
+    ])
+    .optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  category: z.enum(['TECHNICAL', 'BILLING', 'FEATURE_REQUEST', 'BUG_REPORT', 'GENERAL', 'OTHER']).optional(),
+  category: z
+    .enum([
+      'TECHNICAL',
+      'BILLING',
+      'FEATURE_REQUEST',
+      'BUG_REPORT',
+      'GENERAL',
+      'OTHER',
+    ])
+    .optional(),
   isPinned: z.boolean().optional(),
 });
 
@@ -37,6 +70,8 @@ interface TicketQueryOptions {
   priority?: string;
   category?: string;
   search?: string;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
   customerId?: string;
@@ -45,23 +80,34 @@ interface TicketQueryOptions {
 // GET /api/tickets - Get all tickets
 router.get('/', authenticate, async (req: AuthRequest, res, next) => {
   try {
-    const { status, priority, category, search, page, limit } = req.query;
+    const {
+      status,
+      priority,
+      category,
+      search,
+      page,
+      limit,
+      startDate,
+      endDate,
+    } = req.query;
     const user = req.user!;
-    
+
     const options: TicketQueryOptions = {
       status: status as string,
       priority: priority as string,
       category: category as string,
       search: search as string,
+      startDate: startDate as string,
+      endDate: endDate as string,
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
     };
-    
+
     // Users can only see their own tickets
     if (user.role === 'USER') {
       options.customerId = user.id;
     }
-    
+
     const result = await ticketService.getTickets(options);
     res.json(result);
   } catch (error) {
@@ -70,28 +116,33 @@ router.get('/', authenticate, async (req: AuthRequest, res, next) => {
 });
 
 // POST /api/tickets - Create a new ticket
-router.post('/', authenticate, validateBody(createTicketSchema), async (req: AuthRequest, res, next) => {
-  try {
-    const user = req.user!;
-    
-    const ticket = await ticketService.createTicket({
-      ...req.body,
-      customerId: user.id,
-      source: 'WEB',
-    });
-    
-    res.status(201).json(ticket);
-  } catch (error) {
-    next(error);
+router.post(
+  '/',
+  authenticate,
+  validateBody(createTicketSchema),
+  async (req: AuthRequest, res, next) => {
+    try {
+      const user = req.user!;
+
+      const ticket = await ticketService.createTicket({
+        ...req.body,
+        customerId: user.id,
+        source: 'WEB',
+      });
+
+      res.status(201).json(ticket);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // GET /api/tickets/stats - Get ticket statistics
 router.get('/stats', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const user = req.user!;
     const agentId = user.role === 'USER' ? undefined : user.id;
-    
+
     const stats = await ticketService.getTicketStats(agentId);
     res.json(stats);
   } catch (error) {
@@ -104,18 +155,21 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
   try {
     const user = req.user!;
     const includeInternal = user.role !== 'USER';
-    
-    const ticket = await ticketService.getTicketById(req.params.id, includeInternal);
-    
+
+    const ticket = await ticketService.getTicketById(
+      req.params.id,
+      includeInternal
+    );
+
     if (!ticket) {
       return res.status(404).json({ error: 'Ticket not found' });
     }
-    
+
     // Users can only see their own tickets
     if (user.role === 'USER' && ticket.customerId !== user.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
-    
+
     return res.json(ticket);
   } catch (error) {
     return next(error);
@@ -123,32 +177,59 @@ router.get('/:id', authenticate, async (req: AuthRequest, res, next) => {
 });
 
 // GET /api/tickets/tracking/:token - Get ticket by tracking token (public)
-router.get('/tracking/:token', optionalAuth, async (req: AuthRequest, res, next) => {
-  try {
-    const ticket = await ticketService.getTicketByTrackingToken(req.params.token);
-    
-    if (!ticket) {
-      return res.status(404).json({ error: 'Ticket not found' });
+router.get(
+  '/tracking/:token',
+  optionalAuth,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const ticket = await ticketService.getTicketByTrackingToken(
+        req.params.token
+      );
+
+      if (!ticket) {
+        return res.status(404).json({ error: 'Ticket not found' });
+      }
+
+      return res.json(ticket);
+    } catch (error) {
+      return next(error);
     }
-    
-    return res.json(ticket);
-  } catch (error) {
-    return next(error);
   }
-});
+);
 
 // PATCH /api/tickets/:id - Update ticket
 router.patch(
   '/:id',
   authenticate,
-  requireRole('AGENT', 'ADMIN'),
   validateBody(updateTicketSchema),
-  async (req, res, next) => {
+  async (req: AuthRequest, res, next) => {
     try {
-      const ticket = await ticketService.updateTicket(req.params.id, req.body);
-      res.json(ticket);
+      const user = req.user!;
+      const ticket = await ticketService.getTicketById(req.params.id, false);
+
+      if (!ticket) {
+        return res.status(404).json({ error: 'Ticket not found' });
+      }
+
+      // Users can only edit subject/description of their own tickets
+      if (user.role === 'USER') {
+        if (ticket.customerId !== user.id) {
+          return res.status(403).json({ error: 'Access denied' });
+        }
+        const { subject, description, priority } = req.body;
+        const userUpdate = await ticketService.updateTicket(req.params.id, {
+          ...(subject && { subject }),
+          ...(description && { description }),
+          ...(priority && { priority }),
+        });
+        return res.json(userUpdate);
+      }
+
+      // Agents/admins can update any field
+      const updated = await ticketService.updateTicket(req.params.id, req.body);
+      return res.json(updated);
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 );
@@ -162,7 +243,10 @@ router.post(
   async (req, res, next) => {
     try {
       const { agentId } = req.body;
-      const assignment = await ticketService.assignTicket(req.params.id, agentId);
+      const assignment = await ticketService.assignTicket(
+        req.params.id,
+        agentId
+      );
       res.json(assignment);
     } catch (error) {
       next(error);
@@ -179,17 +263,17 @@ router.post(
     try {
       const user = req.user!;
       const { content, isInternal } = req.body;
-      
+
       // Only agents can add internal responses
       const internal = user.role !== 'USER' && isInternal;
-      
+
       const response = await ticketService.addResponse(
         req.params.id,
         user.id,
         content,
         internal
       );
-      
+
       res.status(201).json(response);
     } catch (error) {
       next(error);

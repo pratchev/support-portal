@@ -1,20 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { TicketForm } from '@/components/tickets/ticket-form';
-import { apiClient } from '@/lib/api-client';
+import { TicketForm, TicketFormData } from '@/components/tickets/ticket-form';
+import { useApi } from '@/hooks/use-api';
 
 export default function SubmitTicketPage() {
   const router = useRouter();
+  const { post, isAuthenticated } = useApi();
 
-  const handleSubmit = async (data: any) => {
-    try {
-      const response = await apiClient.post<{ trackingToken: string }>('/tickets/public', data);
-      router.push(`/track/${response.trackingToken}`);
-    } catch (error) {
-      console.error('Failed to submit ticket:', error);
-      throw error;
-    }
+  const handleSubmit = async (data: TicketFormData) => {
+    if (!isAuthenticated) return;
+    const response = await post<{ trackingToken: string }>(
+      '/api/tickets',
+      data
+    );
+    router.push(`/track/${response.trackingToken}`);
   };
 
   return (
@@ -22,7 +22,8 @@ export default function SubmitTicketPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Submit a Support Ticket</h1>
         <p className="text-muted-foreground">
-          Fill out the form below and we&apos;ll get back to you as soon as possible.
+          Fill out the form below and we&apos;ll get back to you as soon as
+          possible.
         </p>
       </div>
       <TicketForm onSubmit={handleSubmit} />

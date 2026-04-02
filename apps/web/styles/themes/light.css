@@ -30,11 +30,13 @@
   --radius: 0.75rem;
 
   /* Status colors */
-  --status-open: 213 94% 54%;
-  --status-in-progress: 38 92% 50%;
-  --status-waiting: 262 83% 58%;
-  --status-resolved: 160 84% 39%;
-  --status-closed: 215 14% 45%;
+  --status-new: 217 91% 60%;
+  --status-open: 0 72% 51%;
+  --status-in-progress: 50 98% 47%;
+  --status-waiting: 271 91% 65%;
+  --status-waiting-internal: 30 41% 44%;
+  --status-resolved: 142 71% 45%;
+  --status-closed: 220 9% 46%;
 
   /* Priority colors */
   --priority-low: 215 14% 45%;

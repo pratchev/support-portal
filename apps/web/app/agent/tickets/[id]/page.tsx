@@ -13,6 +13,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useApi } from '@/hooks/use-api';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AgentTicketPage() {
   const params = useParams();
@@ -67,8 +69,15 @@ export default function AgentTicketPage() {
 
   return (
     <div className="container max-w-4xl py-8">
+      <Link
+        href="/agent/tickets"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Tickets
+      </Link>
       <div className="space-y-6">
-        <TicketDetail ticket={ticket} />
+        <TicketDetail ticket={ticket} onUpdate={setTicket} />
 
         <Card>
           <CardHeader>

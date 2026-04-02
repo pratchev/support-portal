@@ -5,7 +5,13 @@ import { notificationService } from './notificationService';
 import { aiAnalysisQueue } from '@/config/redis';
 
 type TicketPriorityValue = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
-type TicketCategoryValue = 'TECHNICAL' | 'BILLING' | 'FEATURE_REQUEST' | 'BUG_REPORT' | 'GENERAL' | 'OTHER';
+type TicketCategoryValue =
+  | 'TECHNICAL'
+  | 'BILLING'
+  | 'FEATURE_REQUEST'
+  | 'BUG_REPORT'
+  | 'GENERAL'
+  | 'OTHER';
 
 interface CreateTicketInput {
   subject: string;
@@ -31,6 +37,8 @@ interface GetTicketsOptions {
   priority?: string;
   category?: string;
   search?: string;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
 }
@@ -54,13 +62,13 @@ class TicketService {
           },
         },
       });
-      
+
       // Queue AI analysis
       await aiAnalysisQueue.add('analyze-ticket', { ticketId: ticket.id });
-      
+
       // Send notification
       await notificationService.sendNewTicketNotification(ticket.id);
-      
+
       logger.info(`Ticket created: #${ticket.ticketNumber}`);
       return ticket;
     } catch (error) {
@@ -76,16 +84,21 @@ class TicketService {
       priority,
       category,
       search,
+      startDate,
+      endDate,
       page = 1,
       limit = 20,
     } = options;
-    
+
     const where: Record<string, unknown> = {};
-    
+
     if (customerId) where.customerId = customerId;
     if (status) where.status = status;
     if (priority) where.priority = priority;
     if (category) where.category = category;
+    if (startDate && endDate) {
+      where.createdAt = { gte: new Date(startDate), lte: new Date(endDate) };
+    }
     if (search) {
       where.OR = [
         { subject: { contains: search, mode: 'insensitive' } },
@@ -93,7 +106,7 @@ class TicketService {
         { ticketNumber: { equals: parseInt(search) || 0 } },
       ];
     }
-    
+
     const [tickets, total] = await Promise.all([
       prisma.ticket.findMany({
         where,
@@ -112,16 +125,13 @@ class TicketService {
             select: { responses: true },
           },
         },
-        orderBy: [
-          { isPinned: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
       prisma.ticket.count({ where }),
     ]);
-    
+
     return {
       data: tickets,
       pagination: {
@@ -169,7 +179,7 @@ class TicketService {
         devOpsLinks: true,
       },
     });
-    
+
     return ticket;
   }
 
@@ -179,9 +189,26 @@ class TicketService {
 
   async updateTicket(id: string, input: UpdateTicketInput) {
     try {
+      const data: Record<string, unknown> = { ...input };
+
+      // Set resolvedAt/closedAt timestamps on status transitions
+      if (input.status === 'RESOLVED') {
+        data.resolvedAt = new Date();
+      } else if (input.status === 'CLOSED') {
+        data.closedAt = new Date();
+        // Also set resolvedAt if not already set
+        const existing = await prisma.ticket.findUnique({
+          where: { id },
+          select: { resolvedAt: true },
+        });
+        if (!existing?.resolvedAt) {
+          data.resolvedAt = new Date();
+        }
+      }
+
       const ticket = await prisma.ticket.update({
         where: { id },
-        data: input as Record<string, unknown>,
+        data,
         include: {
           customer: true,
           assignments: {
@@ -189,7 +216,7 @@ class TicketService {
           },
         },
       });
-      
+
       logger.info(`Ticket updated: #${ticket.ticketNumber}`);
       return ticket;
     } catch (error) {
@@ -206,11 +233,11 @@ class TicketService {
           ticketId_agentId: { ticketId, agentId },
         },
       });
-      
+
       if (existing) {
         return existing;
       }
-      
+
       const assignment = await prisma.ticketAssignment.create({
         data: { ticketId, agentId },
         include: {
@@ -218,7 +245,7 @@ class TicketService {
           agent: true,
         },
       });
-      
+
       // Update ticket status if it's still OPEN
       await prisma.ticket.update({
         where: { id: ticketId },
@@ -226,11 +253,16 @@ class TicketService {
           status: 'IN_PROGRESS',
         },
       });
-      
+
       // Send notification
-      await notificationService.sendTicketAssignmentNotification(ticketId, agentId);
-      
-      logger.info(`Ticket #${assignment.ticket.ticketNumber} assigned to ${assignment.agent.name}`);
+      await notificationService.sendTicketAssignmentNotification(
+        ticketId,
+        agentId
+      );
+
+      logger.info(
+        `Ticket #${assignment.ticket.ticketNumber} assigned to ${assignment.agent.name}`
+      );
       return assignment;
     } catch (error) {
       logger.error('Failed to assign ticket:', error);
@@ -238,7 +270,12 @@ class TicketService {
     }
   }
 
-  async addResponse(ticketId: string, userId: string, content: string, isInternal: boolean = false) {
+  async addResponse(
+    ticketId: string,
+    userId: string,
+    content: string,
+    isInternal: boolean = false
+  ) {
     try {
       const response = await prisma.response.create({
         data: {
@@ -256,18 +293,21 @@ class TicketService {
           },
         },
       });
-      
+
       // Update ticket's updatedAt
       await prisma.ticket.update({
         where: { id: ticketId },
         data: { updatedAt: new Date() },
       });
-      
+
       // Send notification if not internal and responder is not the customer
       if (!isInternal && userId !== response.ticket.customerId) {
-        await notificationService.sendTicketReplyNotification(ticketId, response.id);
+        await notificationService.sendTicketReplyNotification(
+          ticketId,
+          response.id
+        );
       }
-      
+
       logger.info(`Response added to ticket #${response.ticket.ticketNumber}`);
       return response;
     } catch (error) {
@@ -277,19 +317,21 @@ class TicketService {
   }
 
   async getTicketStats(agentId?: string) {
-    const where = agentId ? {
-      assignments: {
-        some: { agentId },
-      },
-    } : {};
-    
+    const where = agentId
+      ? {
+          assignments: {
+            some: { agentId },
+          },
+        }
+      : {};
+
     const [total, open, inProgress, resolved] = await Promise.all([
       prisma.ticket.count({ where }),
       prisma.ticket.count({ where: { ...where, status: 'OPEN' } }),
       prisma.ticket.count({ where: { ...where, status: 'IN_PROGRESS' } }),
       prisma.ticket.count({ where: { ...where, status: 'RESOLVED' } }),
     ]);
-    
+
     return { total, open, inProgress, resolved };
   }
 }

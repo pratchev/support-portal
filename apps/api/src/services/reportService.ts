@@ -1,28 +1,33 @@
 import { prisma } from '@/config/database';
 import { logger } from '@/utils/logger';
 
-type TicketWithResponses = { 
-  createdAt: Date; 
-  responses: { createdAt: Date }[] 
+type TicketWithResponses = {
+  createdAt: Date;
+  responses: { createdAt: Date }[];
 };
 
-type AssignmentWithDetails = { 
-  agent: { id: string; name: string }; 
-  ticket: { status: string; priority: string; createdAt: Date; resolvedAt: Date | null } 
+type AssignmentWithDetails = {
+  agent: { id: string; name: string };
+  ticket: {
+    status: string;
+    priority: string;
+    createdAt: Date;
+    resolvedAt: Date | null;
+  };
 };
 
 class ReportService {
   async getTicketMetrics(startDate?: Date, endDate?: Date) {
     try {
       const where: Record<string, unknown> = {};
-      
+
       if (startDate && endDate) {
         where.createdAt = {
           gte: startDate,
           lte: endDate,
         };
       }
-      
+
       const [
         totalTickets,
         openTickets,
@@ -40,7 +45,7 @@ class ReportService {
         this.getTicketsByCategory(where),
         this.getTicketsByStatus(where),
       ]);
-      
+
       return {
         totalTickets,
         openTickets,
@@ -66,19 +71,20 @@ class ReportService {
         },
       },
     });
-    
+
     let totalResponseTime = 0;
     let ticketsWithResponses = 0;
-    
+
     tickets.forEach((ticket: TicketWithResponses) => {
       if (ticket.responses.length > 0) {
-        const responseTime = ticket.responses[0].createdAt.getTime() - ticket.createdAt.getTime();
+        const responseTime =
+          ticket.responses[0].createdAt.getTime() - ticket.createdAt.getTime();
         totalResponseTime += responseTime;
         ticketsWithResponses++;
       }
     });
-    
-    return ticketsWithResponses > 0 
+
+    return ticketsWithResponses > 0
       ? Math.floor(totalResponseTime / ticketsWithResponses / (1000 * 60)) // in minutes
       : 0;
   }
@@ -89,7 +95,7 @@ class ReportService {
       where,
       _count: true,
     });
-    
+
     return results.map((r: { priority: string; _count: number }) => ({
       priority: r.priority,
       count: r._count,
@@ -102,7 +108,7 @@ class ReportService {
       where,
       _count: true,
     });
-    
+
     return results.map((r: { category: string; _count: number }) => ({
       category: r.category,
       count: r._count,
@@ -115,28 +121,32 @@ class ReportService {
       where,
       _count: true,
     });
-    
+
     return results.map((r: { status: string; _count: number }) => ({
       status: r.status,
       count: r._count,
     }));
   }
 
-  async getAgentPerformance(agentId?: string, startDate?: Date, endDate?: Date) {
+  async getAgentPerformance(
+    agentId?: string,
+    startDate?: Date,
+    endDate?: Date
+  ) {
     try {
       const where: Record<string, unknown> = {};
-      
+
       if (startDate && endDate) {
         where.assignedAt = {
           gte: startDate,
           lte: endDate,
         };
       }
-      
+
       if (agentId) {
         where.agentId = agentId;
       }
-      
+
       const assignments = await prisma.ticketAssignment.findMany({
         where,
         include: {
@@ -144,11 +154,16 @@ class ReportService {
             select: { id: true, name: true },
           },
           ticket: {
-            select: { status: true, priority: true, createdAt: true, resolvedAt: true },
+            select: {
+              status: true,
+              priority: true,
+              createdAt: true,
+              resolvedAt: true,
+            },
           },
         },
       });
-      
+
       interface AgentStats {
         agentId: string;
         agentName: string;
@@ -157,10 +172,10 @@ class ReportService {
         avgResolutionTime: number;
       }
       const agentStats = new Map<string, AgentStats>();
-      
+
       assignments.forEach((assignment: AssignmentWithDetails) => {
         const agentId = assignment.agent.id;
-        
+
         if (!agentStats.has(agentId)) {
           agentStats.set(agentId, {
             agentId: assignment.agent.id,
@@ -170,22 +185,30 @@ class ReportService {
             avgResolutionTime: 0,
           });
         }
-        
+
         const stats = agentStats.get(agentId)!;
         stats.totalAssigned++;
-        
-        if (assignment.ticket.status === 'RESOLVED' && assignment.ticket.resolvedAt) {
+
+        if (
+          assignment.ticket.status === 'RESOLVED' &&
+          assignment.ticket.resolvedAt
+        ) {
           stats.resolved++;
-          const resolutionTime = assignment.ticket.resolvedAt.getTime() - assignment.ticket.createdAt.getTime();
+          const resolutionTime =
+            assignment.ticket.resolvedAt.getTime() -
+            assignment.ticket.createdAt.getTime();
           stats.avgResolutionTime += resolutionTime;
         }
       });
-      
+
       return Array.from(agentStats.values()).map((stats: AgentStats) => ({
         ...stats,
-        avgResolutionTime: stats.resolved > 0 
-          ? Math.floor(stats.avgResolutionTime / stats.resolved / (1000 * 60 * 60)) // in hours
-          : 0,
+        avgResolutionTime:
+          stats.resolved > 0
+            ? Math.floor(
+                stats.avgResolutionTime / stats.resolved / (1000 * 60 * 60)
+              ) // in hours
+            : 0,
       }));
     } catch (error) {
       logger.error('Failed to get agent performance:', error);
@@ -193,17 +216,131 @@ class ReportService {
     }
   }
 
+  async getDurationMetrics(startDate?: Date, endDate?: Date) {
+    try {
+      const where: Record<string, unknown> = {
+        resolvedAt: { not: null },
+      };
+
+      if (startDate && endDate) {
+        where.createdAt = { gte: startDate, lte: endDate };
+      }
+
+      const tickets = await prisma.ticket.findMany({
+        where,
+        select: {
+          id: true,
+          priority: true,
+          createdAt: true,
+          resolvedAt: true,
+          closedAt: true,
+          customerId: true,
+          customer: { select: { id: true, name: true } },
+          assignments: {
+            include: { agent: { select: { id: true, name: true } } },
+          },
+        },
+      });
+
+      // By priority
+      const byPriority: Record<string, { count: number; totalHours: number }> =
+        {};
+      // By agent
+      const byAgent: Record<
+        string,
+        { name: string; count: number; totalHours: number }
+      > = {};
+      // By end user
+      const byUser: Record<
+        string,
+        { name: string; count: number; totalHours: number }
+      > = {};
+
+      for (const t of tickets) {
+        const hours =
+          ((t.resolvedAt as Date).getTime() - t.createdAt.getTime()) /
+          (1000 * 60 * 60);
+
+        // Priority
+        if (!byPriority[t.priority])
+          byPriority[t.priority] = { count: 0, totalHours: 0 };
+        byPriority[t.priority].count++;
+        byPriority[t.priority].totalHours += hours;
+
+        // Agent
+        for (const a of t.assignments) {
+          const aid = a.agent.id;
+          if (!byAgent[aid])
+            byAgent[aid] = { name: a.agent.name, count: 0, totalHours: 0 };
+          byAgent[aid].count++;
+          byAgent[aid].totalHours += hours;
+        }
+
+        // End user
+        if (!byUser[t.customerId])
+          byUser[t.customerId] = {
+            name: t.customer.name,
+            count: 0,
+            totalHours: 0,
+          };
+        byUser[t.customerId].count++;
+        byUser[t.customerId].totalHours += hours;
+      }
+
+      const format = (
+        map: Record<
+          string,
+          { name?: string; count: number; totalHours: number }
+        >
+      ) =>
+        Object.entries(map).map(([key, v]) => ({
+          id: key,
+          name: v.name || key,
+          count: v.count,
+          avgHours: Math.round((v.totalHours / v.count) * 10) / 10,
+        }));
+
+      return {
+        byPriority: Object.entries(byPriority).map(([priority, v]) => ({
+          priority,
+          count: v.count,
+          avgHours: Math.round((v.totalHours / v.count) * 10) / 10,
+        })),
+        byAgent: format(byAgent),
+        byUser: format(byUser),
+        totalResolved: tickets.length,
+        overallAvgHours:
+          tickets.length > 0
+            ? Math.round(
+                (tickets.reduce(
+                  (sum, t) =>
+                    sum +
+                    ((t.resolvedAt as Date).getTime() - t.createdAt.getTime()),
+                  0
+                ) /
+                  tickets.length /
+                  (1000 * 60 * 60)) *
+                  10
+              ) / 10
+            : 0,
+      };
+    } catch (error) {
+      logger.error('Failed to get duration metrics:', error);
+      throw error;
+    }
+  }
+
   async getCustomerSatisfaction(startDate?: Date, endDate?: Date) {
     try {
       const where: Record<string, unknown> = {};
-      
+
       if (startDate && endDate) {
         where.createdAt = {
           gte: startDate,
           lte: endDate,
         };
       }
-      
+
       const ratings = await prisma.rating.findMany({
         where,
         include: {
@@ -212,17 +349,22 @@ class ReportService {
           },
         },
       });
-      
+
       const totalRatings = ratings.length;
-      const avgScore = totalRatings > 0
-        ? ratings.reduce((sum: number, r: { score: number }) => sum + r.score, 0) / totalRatings
-        : 0;
-      
-      const distribution = [1, 2, 3, 4, 5].map(score => ({
+      const avgScore =
+        totalRatings > 0
+          ? ratings.reduce(
+              (sum: number, r: { score: number }) => sum + r.score,
+              0
+            ) / totalRatings
+          : 0;
+
+      const distribution = [1, 2, 3, 4, 5].map((score) => ({
         score,
-        count: ratings.filter((r: { score: number }) => r.score === score).length,
+        count: ratings.filter((r: { score: number }) => r.score === score)
+          .length,
       }));
-      
+
       return {
         totalRatings,
         avgScore: Math.round(avgScore * 10) / 10,

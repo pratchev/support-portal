@@ -8,13 +8,13 @@ interface TicketStatusBadgeProps {
 }
 
 const STATUS_DOTS: Record<string, string> = {
-  OPEN: 'bg-blue-500',
-  IN_PROGRESS: 'bg-amber-500',
-  WAITING_FOR_CUSTOMER: 'bg-violet-500',
-  WAITING_FOR_INTERNAL: 'bg-violet-500',
-  RESOLVED: 'bg-emerald-500',
-  CLOSED: 'bg-slate-400',
-  NEW: 'bg-sky-500',
+  NEW: 'bg-blue-500',
+  OPEN: 'bg-red-500',
+  IN_PROGRESS: 'bg-yellow-500',
+  WAITING_FOR_CUSTOMER: 'bg-purple-500',
+  WAITING_FOR_INTERNAL: 'bg-amber-700',
+  RESOLVED: 'bg-green-500',
+  CLOSED: 'bg-gray-400',
 };
 
 const STATUS_LABELS: Record<string, string> = {

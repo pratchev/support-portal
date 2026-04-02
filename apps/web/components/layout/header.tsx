@@ -17,6 +17,14 @@ import { ThemeToggle } from './theme-toggle';
 export function Header() {
   const { data: session } = useSession();
 
+  const role = (session?.user as any)?.role?.toUpperCase();
+  const dashboardHref =
+    role === 'ADMIN'
+      ? '/admin'
+      : role === 'AGENT' || role === 'MANAGER'
+        ? '/agent'
+        : '/dashboard';
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
@@ -94,7 +102,7 @@ export function Header() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/dashboard">
+                  <Link href={dashboardHref}>
                     <User className="mr-2 h-4 w-4" />
                     Dashboard
                   </Link>

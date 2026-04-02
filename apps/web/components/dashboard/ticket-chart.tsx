@@ -28,8 +28,22 @@ const STATUS_CHART_COLORS: Record<string, string> = {
   CLOSED: 'hsl(220, 9%, 46%)',
 };
 
+const STATUS_CHART_LABELS: Record<string, string> = {
+  NEW: 'New',
+  OPEN: 'Open',
+  IN_PROGRESS: 'In Progress',
+  WAITING_FOR_CUSTOMER: 'Waiting on Customer',
+  WAITING_FOR_INTERNAL: 'Waiting on Team',
+  RESOLVED: 'Resolved',
+  CLOSED: 'Closed',
+};
+
 export function getStatusChartColor(status: string): string {
   return STATUS_CHART_COLORS[status] || 'hsl(220, 9%, 46%)';
+}
+
+export function getStatusChartLabel(status: string): string {
+  return STATUS_CHART_LABELS[status] || status.replace(/_/g, ' ');
 }
 
 interface TicketChartProps {

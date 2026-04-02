@@ -5,6 +5,7 @@ import { StatsCard } from '@/components/dashboard/stats-card';
 import {
   TicketChart,
   getStatusChartColor,
+  getStatusChartLabel,
 } from '@/components/dashboard/ticket-chart';
 import type { TicketChartData } from '@/components/dashboard/ticket-chart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,7 +74,7 @@ export default function AdminDashboardPage() {
 
       setChartData(
         m.ticketsByStatus.map((s) => ({
-          name: s.status.replace(/_/g, ' '),
+          name: getStatusChartLabel(s.status),
           count: s.count,
           fill: getStatusChartColor(s.status),
         }))

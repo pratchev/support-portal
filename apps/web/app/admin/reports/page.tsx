@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   TicketChart,
   getStatusChartColor,
+  getStatusChartLabel,
 } from '@/components/dashboard/ticket-chart';
 import {
   Table,
@@ -104,7 +105,7 @@ export default function AdminReportsPage() {
 
   const chartData = metrics
     ? metrics.ticketsByStatus.map((s) => ({
-        name: s.status.replace(/_/g, ' '),
+        name: getStatusChartLabel(s.status),
         count: s.count,
         fill: getStatusChartColor(s.status),
       }))

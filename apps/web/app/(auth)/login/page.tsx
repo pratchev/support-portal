@@ -7,13 +7,32 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const getRedirectPath = (role?: string) => {
+    switch (role?.toUpperCase()) {
+      case 'ADMIN':
+        return '/admin';
+      case 'AGENT':
+      case 'MANAGER':
+        return '/agent';
+      default:
+        return '/dashboard';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +49,11 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Invalid email or password');
       } else {
-        router.push('/dashboard');
+        // Fetch the fresh session to get user role for redirect
+        const res = await fetch('/api/auth/session');
+        const sess = await res.json();
+        const role = sess?.user?.role;
+        router.push(getRedirectPath(role));
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -44,7 +67,9 @@ export default function LoginPage() {
       <Card>
         <CardHeader>
           <CardTitle>Sign In</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardDescription>
+            Enter your credentials to access your account
+          </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -55,7 +80,9 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
               />
             </div>
@@ -65,7 +92,9 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
               />
             </div>
@@ -80,7 +109,10 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
             <div className="flex items-center justify-between w-full text-sm">
-              <Link href="/reset-password" className="text-primary hover:underline">
+              <Link
+                href="/reset-password"
+                className="text-primary hover:underline"
+              >
                 Forgot password?
               </Link>
               <Link href="/register" className="text-primary hover:underline">

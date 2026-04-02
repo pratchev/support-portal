@@ -31,7 +31,12 @@ export function Sidebar({ role = 'end_user' }: SidebarProps) {
             href={item.href}
             className={cn(
               'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-150',
-              pathname === item.href
+              pathname === item.href ||
+                (item.href !== '/' &&
+                  item.href !== '/admin' &&
+                  item.href !== '/agent' &&
+                  item.href !== '/dashboard' &&
+                  pathname.startsWith(item.href))
                 ? 'bg-primary/10 text-primary font-medium'
                 : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
             )}
